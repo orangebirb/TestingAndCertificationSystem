@@ -1,0 +1,70 @@
+﻿@model TestingAndCertificationSystem.ViewModels.RegistrationViewModel
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-4 mx-auto">
+            <div class="card">
+                <div class="card-body">
+                    <div class="mb-3">
+                        <h3>Create account</h3>
+                    </div>
+                    <form method="post" asp-controller="Account" asp-action="RegistrationAsUser">
+                        <div asp-validation-summary="ModelOnly" class="alert-danger"></div>
+                        <div class="mb-3">
+                            <div>
+                                <input asp-for="FirstName" type="text" class="form-control" placeholder="First Name">
+                                <span asp-validation-for="FirstName"></span>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div>
+                                <input asp-for="LastName" type="text" class="form-control" placeholder="Last Name">
+                                <span asp-validation-for="LastName"></span>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div>
+                                <input asp-for="City" type="text" class="form-control" placeholder="City">
+                                <span asp-validation-for="City"></span>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div>
+                                <input asp-for="Email" type="email" class="form-control" placeholder="Email">
+                                <span asp-validation-for="Email"></span>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div>
+                                <input asp-for="Phone" type="text" class="form-control" placeholder="Phone">
+                                <span asp-validation-for="Phone"></span>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div>
+                                <input asp-for="Description" type="text" class="form-control" placeholder="Description">
+                                <span asp-validation-for="Description"></span>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div>
+                                <input asp-for="Password" type="password" class="form-control" placeholder="Password">
+                                <span asp-validation-for="Password"></span>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div>
+                                <input asp-for="PasswordConfirm" type="password" class="form-control" placeholder="Confirm password">
+                                <span asp-validation-for="PasswordConfirm"></span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <input type="submit" class="btn btn-danger" value="Войти" />
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

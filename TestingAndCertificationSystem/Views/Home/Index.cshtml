@@ -1,0 +1,33 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+@if (User.IsInRole("CompanyAdmin"))
+{
+    /*Layout = "~/Views/Layouts/AdminLayout.cshtml"; */
+    <p>Admin of company</p>
+}
+@if (User.IsInRole("CompanyModerator"))
+{
+    <p>Moderator of company</p>
+}
+@if (User.IsInRole("User"))
+{
+    <p>User</p>
+}
+
+@if (User.Identity.IsAuthenticated)
+{
+    <p>@User.Identity.Name</p>
+
+    <form method="post" asp-controller="Account" asp-action="Logout">
+        <input class="nav-link" type="submit" value="Logout">
+    </form>
+}
+else
+{
+    <div class="text-center">
+        <h1 class="display-4">Welcome</h1>
+    </div>
+}
+

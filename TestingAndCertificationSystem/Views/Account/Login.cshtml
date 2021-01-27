@@ -1,0 +1,42 @@
+﻿@model TestingAndCertificationSystem.ViewModels.LoginViewModel
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-4 mx-auto">
+            <div class="card">
+                <div class="card-body">
+                    <div class="mb-3">
+                        <h3>Sign In</h3>
+                    </div>
+                    <form method="post" asp-controller="Account" asp-action="Login" asp-route-returnUrl="@Model.ReturnUrl">
+                        <div asp-validation-summary="ModelOnly" class="alert-danger"></div>
+                        <div class="mb-3">
+                            <div>
+                                <input asp-for="Email" type="email" class="form-control" placeholder="Email">
+                                <span asp-validation-for="Email"></span>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div>
+                                <input asp-for="Password" type="password" class="form-control" placeholder="Password">
+                                <span asp-validation-for="Password"></span>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input asp-for="RememberMe" type="checkbox" class="form-check-input">
+                                <label asp-for="RememberMe" class="form-check-label" for="dropdownCheck">
+                                    Remember me
+                                </label>
+                            </div>
+                        </div>
+
+                        <div>
+                            <input type="submit" class="btn btn-danger" value="Login" />
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
