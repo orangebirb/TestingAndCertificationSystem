@@ -92,7 +92,7 @@ namespace TestingAndCertificationSystem.Controllers
         {
             if (ModelState.IsValid)
             {
-                TestingSystemDBContext ts = new TestingSystemDBContext();
+                TestingSystemDBContext _context = new TestingSystemDBContext();
 
                 Company newCompany = new Company
                 {
@@ -103,7 +103,10 @@ namespace TestingAndCertificationSystem.Controllers
                     WebsiteUrl = model.company.WebsiteUrl
                 };
 
-                ts.Company.Add(newCompany);
+                _context.Company.Add(newCompany);
+
+                //saving added company to db
+                _context.SaveChanges();
 
                 UserIdentity user = new UserIdentity
                 {
@@ -116,9 +119,6 @@ namespace TestingAndCertificationSystem.Controllers
                     UserName = model.user.Email,
                     CompanyId = newCompany.Id
                 };
-
-                //saving added company to db
-                ts.SaveChanges();
 
                 // creating new user
                 var result = await _userManager.CreateAsync(user, model.user.Password);

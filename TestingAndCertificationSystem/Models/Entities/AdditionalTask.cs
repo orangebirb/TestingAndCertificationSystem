@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace TestingAndCertificationSystem
 {
-    public partial class AdditionalTask
+    public class AdditionalTask
     {
         public AdditionalTask()
         {

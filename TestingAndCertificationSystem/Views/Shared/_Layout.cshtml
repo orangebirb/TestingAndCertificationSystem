@@ -17,20 +17,61 @@
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item dropdown">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Login">Sign In</a>
-                        </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link text-dark" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                Sign Up
-                            </a>
-                            <div class="dropdown-menu">
-                                <a class="dropdown-item" asp-area="" asp-controller="Account" asp-action="RegistrationAsUser">As user</a>
-                                <a class="dropdown-item" asp-area="" asp-controller="Account" asp-action="RegistrationAsCompany">As company</a>
-                            </div>
-                        </li>
-                    </ul>
+
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        <ul class="nav navbar-nav flex-grow-1">
+
+                            @if (User.IsInRole("CompanyAdmin"))
+                            {
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link text-dark" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        Company
+                                    </a>
+                                    <div class="dropdown-menu">
+                                        <a class="dropdown-item" asp-controller="Company" asp-action="Moderators">Moderators</a>
+                                        <a class="dropdown-item" asp-controller="Company" asp-action="AddModerators">Add new moderator</a>
+                                        <a class="nav-link text-dark" asp-area="" asp-controller="Company" asp-action="Edit">Company info</a>
+                                    </div>
+                                </li>
+                            }
+
+                            @if (User.IsInRole("CompanyAdmin") || User.IsInRole("CompanyModerator"))
+                            {
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link text-dark" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        Tests
+                                    </a>
+                                    <div class="dropdown-menu">
+                                        <a class="dropdown-item" asp-controller="Tests" asp-action="Tests">Tests</a>
+                                        <a class="dropdown-item" asp-controller="Tests" asp-action="CreateTest">Add a new test</a>
+                                    </div>
+                                </li>
+                            }
+                            <li class="nav-item ">
+                                <form method="post" asp-controller="Account" asp-action="Logout">
+                                    <input class="nav-link text-dark" type="submit" value="Logout" />
+                                </form>
+                            </li>
+                        </ul>
+                    }
+                    else
+                    {
+                        <ul class="navbar-nav flex-grow-1">
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Login">Sign In</a>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link text-dark" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    Sign Up
+                                </a>
+                                <div class="dropdown-menu">
+                                    <a class="dropdown-item" asp-area="" asp-controller="Account" asp-action="RegistrationAsUser">As user</a>
+                                    <a class="dropdown-item" asp-area="" asp-controller="Account" asp-action="RegistrationAsCompany">As company</a>
+                                </div>
+                            </li>
+                        </ul>
+                    }
                 </div>
             </div>
         </nav>

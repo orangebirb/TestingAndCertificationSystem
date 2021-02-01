@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace TestingAndCertificationSystem
 {
-    public partial class Test
+    public class Test
     {
         public Test()
         {
@@ -24,8 +24,8 @@ namespace TestingAndCertificationSystem
         public string Instruction { get; set; }
         public Guid Token { get; set; }
         public int TokenLifetimeInMinutes { get; set; }
-        public DateTime TokenStartTime { get; set; }
-        public DateTime TokenEndTime { get; set; }
+        public DateTime? TokenStartTime { get; set; }
+        public DateTime? TokenEndTime { get; set; }
         public int? AdditionalTaskId { get; set; }
         public bool IsPrivate { get; set; }
         public bool IsActive { get; set; }

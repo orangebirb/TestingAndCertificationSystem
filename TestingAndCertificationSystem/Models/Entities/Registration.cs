@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace TestingAndCertificationSystem
 {
-    public partial class Registration
+    public class Registration
     {
         public Registration()
         {

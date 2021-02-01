@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace TestingAndCertificationSystem
 {
-    public partial class Choice
+    public class Choice
     {
         public Choice()
         {

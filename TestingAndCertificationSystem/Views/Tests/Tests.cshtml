@@ -1,0 +1,35 @@
+﻿@model List<TestingAndCertificationSystem.Test>
+
+<h2>tests</h2>
+
+<table class="table">
+    <tr><th>Name</th><th>Description</th><th></th></tr>
+</table>
+<div class="accordion" id="accordion">
+    @foreach (var test in Model)
+    {
+        <div class="card">
+            <div class="card-header" id="heading_@test.Id">
+                <h5 class="mb-0">
+                    <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapse_@test.Id" aria-expanded="false" aria-controls="collapse_@test.Id">
+                        @test.Name
+                    </button>
+                </h5>
+            </div>
+            <div id="collapse_@test.Id" class="collapse" aria-labelledby="heading_@test.Id" data-parent="#accordion">
+                <div class="card-body">
+                    @test.Description
+                    <br />Time allowed: @test.DurationInMinutes minutes
+                    <br />Total questions: ///
+                    @if(test.AdditionalTaskId != null)
+                    {
+                        <br />
+                        <br />@test.AdditionalTask.Name
+                        <br />@test.AdditionalTask.Description
+                        <br />@test.AdditionalTask.ExpirationDate
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</div>
