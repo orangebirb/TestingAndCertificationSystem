@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 // Code scaffolded by EF Core assumes nullable reference types (NRTs) are not used or disabled.
 // If you have enabled NRTs for your project, then un-comment the following line:
@@ -19,7 +20,7 @@ namespace TestingAndCertificationSystem
         public string TestAuthorId { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
-        public string DurationInMinutes { get; set; }
+        public int DurationInMinutes { get; set; }
         public bool Certificate { get; set; }
         public string Instruction { get; set; }
         public Guid Token { get; set; }

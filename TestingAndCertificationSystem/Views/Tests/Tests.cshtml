@@ -2,34 +2,63 @@
 
 <h2>tests</h2>
 
-<table class="table">
-    <tr><th>Name</th><th>Description</th><th></th></tr>
-</table>
-<div class="accordion" id="accordion">
-    @foreach (var test in Model)
-    {
-        <div class="card">
-            <div class="card-header" id="heading_@test.Id">
-                <h5 class="mb-0">
-                    <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapse_@test.Id" aria-expanded="false" aria-controls="collapse_@test.Id">
-                        @test.Name
-                    </button>
-                </h5>
-            </div>
-            <div id="collapse_@test.Id" class="collapse" aria-labelledby="heading_@test.Id" data-parent="#accordion">
-                <div class="card-body">
-                    @test.Description
-                    <br />Time allowed: @test.DurationInMinutes minutes
-                    <br />Total questions: ///
-                    @if(test.AdditionalTaskId != null)
-                    {
+@if (ViewBag.successMessage != null)
+{
+    <div class="alert alert-success" role="alert">
+        @ViewBag.successMessage
+    </div>
+}
+
+    <div class="accordion" id="accordion">
+        @foreach (var test in Model)
+        {
+            <div class="card">
+                <div class="card-header" id="heading_@test.Id">
+                    <h5 class="mb-0">
+                        <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapse_@test.Id" aria-expanded="false" aria-controls="collapse_@test.Id">
+                            @test.Name
+                        </button>
+                    </h5>
+                </div>
+                <div id="collapse_@test.Id" class="collapse" aria-labelledby="heading_@test.Id" data-parent="#accordion">
+                    <div class="card-body">
+                        @test.Description
+                        <br />Time allowed: @test.DurationInMinutes minutes
+                        <br />Total questions: ///
                         <br />
-                        <br />@test.AdditionalTask.Name
-                        <br />@test.AdditionalTask.Description
-                        <br />@test.AdditionalTask.ExpirationDate
-                    }
+                        <a class="btn btn-success" asp-controller="Tests" asp-action="CreateQuestion" asp-route-testId=@test.Id>Add questions</a>
+                        <br />
+                        @if (test.AdditionalTaskId != null)
+                        {
+                            if (ViewBag.TasksList != null)
+                            {
+                                var addtask = (ViewBag.TasksList as List<AdditionalTask>).Where(x => x.Id == test.AdditionalTaskId).First();
+
+                                <br /><br /><b>Additional task: </b>
+                                <br /><b>Name - </b>@addtask.Name;
+                                <br /><b>Description - </b>@addtask.Description;
+                                <br /><b>Text - </b>@addtask.Text;
+                                <br /><b>Expiration date - </b>@addtask.ExpirationDate;
+
+                                <form asp-controller="Tests" asp-action="DeleteTask" asp-route-taskId="@addtask.Id" method="post">
+                                    <button type="submit" class="btn btn-sm btn-danger"> Delete task </button>
+                                </form>
+                            }
+                        }
+                        else
+                        {
+                            <br /><br /><b>This test has no additional task </b>
+
+                            <br /><a class="btn btn-success" asp-controller="Tests" asp-action="CreateAdditionalTask" asp-route-testId=@test.Id>Create task</a>
+                        }
+                        <br /><br />@test.Id
+
+                        <form asp-controller="Tests" asp-action="DeleteTest" asp-route-testId="@test.Id" method="post">
+                            <button type="submit" class="btn btn-sm btn-danger"> Remove </button>
+                        </form>
+
+                    </div>
                 </div>
             </div>
-        </div>
-    }
-</div>
+        }
+    </div>

@@ -98,39 +98,41 @@ namespace TestingAndCertificationSystem.Controllers
             {
                 ModelState.AddModelError("", "User can't be found");
             }
-
-            UserIdentity currentUser = await _userManager.GetUserAsync(User);
-            int userCompanyId = currentUser.CompanyId; // current user's (admin's) company id
-
-            user.CompanyId = 0;
-
-            var UserResult = await _userManager.UpdateAsync(user);
-
-            IdentityResult roleRemoveResult = await _userManager.RemoveFromRoleAsync(user, "CompanyModerator");
-
-            //adding role
-            bool userRoleExists = await _roleManager.RoleExistsAsync("User");
-
-            if (!userRoleExists) //creating role if not exists
-            {
-                IdentityResult roleResult = await _roleManager.CreateAsync(new IdentityRole("User"));
-            }
-
-            //adding new user to role
-            var addingUserToRole = await _userManager.AddToRoleAsync(user, "User");
-
-            if (UserResult.Succeeded)
-            {
-                return RedirectToAction("Moderators");
-            }
             else
             {
-                foreach (var error in UserResult.Errors)
+                UserIdentity currentUser = await _userManager.GetUserAsync(User);
+                int userCompanyId = currentUser.CompanyId; // current user's (admin's) company id
+
+                user.CompanyId = 0;
+
+                var UserResult = await _userManager.UpdateAsync(user);
+
+                IdentityResult roleRemoveResult = await _userManager.RemoveFromRoleAsync(user, "CompanyModerator");
+
+                //adding role
+                bool userRoleExists = await _roleManager.RoleExistsAsync("User");
+
+                if (!userRoleExists) //creating role if not exists
                 {
-                    ModelState.AddModelError(string.Empty, error.Description);
+                    IdentityResult roleResult = await _roleManager.CreateAsync(new IdentityRole("User"));
+                }
+
+                //adding new user to role
+                var addingUserToRole = await _userManager.AddToRoleAsync(user, "User");
+
+                if (UserResult.Succeeded)
+                {
+                    return RedirectToAction("Moderators");
+                }
+                else
+                {
+                    foreach (var error in UserResult.Errors)
+                    {
+                        ModelState.AddModelError(string.Empty, error.Description);
+                    }
                 }
             }
-
+            
             return View();
         }
 
@@ -152,7 +154,7 @@ namespace TestingAndCertificationSystem.Controllers
             {
                 Company companyToEdit = _context.Company.Find(company.Id);
 
-                companyToEdit.FullName = company.FullName;
+                _context.Entry(companyToEdit).CurrentValues.SetValues(company);
 
                 _context.Company.Update(companyToEdit);
                 await _context.SaveChangesAsync();

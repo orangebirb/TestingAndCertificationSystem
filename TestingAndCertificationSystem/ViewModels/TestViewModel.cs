@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TestingAndCertificationSystem.ViewModels
 {
-    public class CreateTestViewModel
+    public class TestViewModel
     {
         [Required]
         [Display(Name = "Name")]
@@ -17,7 +17,7 @@ namespace TestingAndCertificationSystem.ViewModels
 
         [Required]
         [Display(Name = "Duration in minutes")]
-        public string DurationInMinutes { get; set; }
+        public int DurationInMinutes { get; set; }
 
         [Required]
         [Display(Name = "Certificate")]

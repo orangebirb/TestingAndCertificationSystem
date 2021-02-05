@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -21,25 +22,35 @@ namespace TestingAndCertificationSystem.Controllers
             _userManager = userManager;
         }
 
+        #region test management
+
+        [HttpGet]
         public async Task<IActionResult> Tests()
         {
+            //list of all additional tasks
+            List<AdditionalTask> listOfTasks = new List<AdditionalTask>();
+            listOfTasks = _context.AdditionalTask.ToList();
+
+            ViewBag.TasksList = listOfTasks;
 
             UserIdentity currentUser = await _userManager.GetUserAsync(User);
             int adminCompanyId = currentUser.CompanyId; // current user's (admin's) company id
-            
+
             if (User.IsInRole("CompanyAdmin"))
             {
+                //only workers in company
                 List<string> companyWorkersId = _userManager.Users.Where(x => x.CompanyId == adminCompanyId).Select(x => x.Id).ToList();
 
-                //all tests where author is in company (admin and moderators)
+                //tests where author is in company (admin and moderators)
                 var testsAdmin = _context.Test.Where(x => companyWorkersId.Any(z => z == x.TestAuthorId)).ToList();
 
                 return View(testsAdmin);
             }
 
-            var tests = _context.Test.Where(x => x.TestAuthorId == User.FindFirstValue(ClaimTypes.NameIdentifier).ToString()).ToList();
-            
-            return View(tests);
+            //only this.user tests (for moderators)
+            var tests = _context.Test.Where(x => x.TestAuthorId == User.FindFirstValue(ClaimTypes.NameIdentifier));
+
+            return View(tests.ToList());
         }
 
         [HttpGet]
@@ -49,7 +60,7 @@ namespace TestingAndCertificationSystem.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateTest(CreateTestViewModel model)
+        public async Task<IActionResult> CreateTest(TestViewModel model)
         {
             if (ModelState.IsValid)
             {
@@ -70,10 +81,107 @@ namespace TestingAndCertificationSystem.Controllers
 
                 await _context.SaveChangesAsync();
 
-                ViewBag.successMessage = "Test created";
+                //TempData["testId"] = newTest.Id;
+                //TempData.Keep();
+
+                return RedirectToAction("Tests");
+                //return RedirectToAction("CreateAdditionalTask", newTest.Id);
             }
 
             return View();
         }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteTest(int testId)
+        {
+            Test testToDelete = _context.Test.Find(testId);
+
+            //deletes additional task if exists
+            if(testToDelete.AdditionalTaskId != null)
+            {
+                AdditionalTask additionalTask = _context.AdditionalTask.Find(testToDelete.AdditionalTaskId);
+              
+                if (additionalTask != null)
+                {
+                    _context.AdditionalTask.Remove(additionalTask);
+                    await _context.SaveChangesAsync();
+                }
+            }
+
+            if (testToDelete != null)
+            {
+                _context.Test.Remove(testToDelete);
+                await _context.SaveChangesAsync();
+            }
+
+            return RedirectToAction("Tests");
+        }
+
+
+
+        #endregion
+
+        #region additional task management
+
+        [HttpGet]
+        public IActionResult CreateAdditionalTask(int testId)
+        {
+            TempData["testId"] = testId;
+
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateAdditionalTask(AdditionalTaskViewModel model, int testId)
+        {
+            if(ModelState.IsValid)
+            {
+                UserIdentity currentUser = await _userManager.GetUserAsync(User);
+                string userEmail = currentUser.Email;
+
+                AdditionalTask newTask = new AdditionalTask()
+                {
+                    Name = model.Name,
+                    Description = model.Description,
+                    ExpirationDate = model.ExpirationDate,
+                    RecipientEmail = userEmail,
+                    Text = model.Text,
+                };
+
+                //adding task
+                _context.AdditionalTask.Add(newTask);
+
+                await _context.SaveChangesAsync();
+
+                //finds a test and adds task data to it
+                var test = _context.Test.Find(testId);
+
+                test.AdditionalTaskId = newTask.Id;
+                test.AdditionalTask = newTask;
+
+                ViewBag.Name = test.AdditionalTask.Name;
+
+                await _context.SaveChangesAsync();
+
+                return RedirectToAction("Tests");
+            }
+
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteTask(int taskId)
+        {
+            AdditionalTask taskToDelete = _context.AdditionalTask.Find(taskId);
+
+            if (taskToDelete != null)
+            {
+                _context.AdditionalTask.Remove(taskToDelete);
+                await _context.SaveChangesAsync();
+            }
+
+            return RedirectToAction("Tests");
+        }
+        #endregion
     }
 }

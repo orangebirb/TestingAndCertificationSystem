@@ -18,7 +18,7 @@ namespace TestingAndCertificationSystem
         public string Name { get; set; }
         public string Description { get; set; }
         public string Text { get; set; }
-        public int RecipientId { get; set; }
+        public string RecipientEmail { get; set; }
         public DateTime ExpirationDate { get; set; }
 
         public virtual ICollection<Test> Test { get; set; }
