@@ -12,14 +12,16 @@ namespace TestingAndCertificationSystem
         public Question()
         {
             Choice = new HashSet<Choice>();
-            QuestionInTest = new HashSet<QuestionInTest>();
+            QuestionAnswer = new HashSet<QuestionAnswer>();
         }
 
         public int Id { get; set; }
+        public int TestId { get; set; }
+        public string Text { get; set; }
         public string QuestionType { get; set; }
-        public double Points { get; set; }
 
+        public virtual Test Test { get; set; }
         public virtual ICollection<Choice> Choice { get; set; }
-        public virtual ICollection<QuestionInTest> QuestionInTest { get; set; }
+        public virtual ICollection<QuestionAnswer> QuestionAnswer { get; set; }
     }
 }

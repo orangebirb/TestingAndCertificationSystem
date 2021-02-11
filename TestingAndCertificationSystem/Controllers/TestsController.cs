@@ -117,7 +117,63 @@ namespace TestingAndCertificationSystem.Controllers
             return RedirectToAction("Tests");
         }
 
+        #endregion
 
+        #region questions management
+
+        [HttpGet]
+        public IActionResult CreateQuestion()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateQuestion(QuestionDataViewModel model, int testId)
+        {
+            List<Choice> choices = new List<Choice>();
+
+            if (ModelState.IsValid && testId != 0)
+            {
+                int totalCount = model.Choices.Count(x => x.Choice.Text != null); //amount of choices
+                int trueAnswCount = model.Choices.Count(x => x.IsChecked == true && x.Choice.Text != null); //marked as true choices
+
+                Question newQuestion = new Question()
+                {
+                    TestId = testId,
+                    Text = model.Question.Text,
+                    QuestionType = trueAnswCount == 1 ? "RADIO" : "CHECKBOX"
+                };
+
+                _context.Question.Add(newQuestion);
+                await _context.SaveChangesAsync();
+
+                foreach (var item in model.Choices)
+                {
+                    if (item.Choice.Text != null)
+                    {
+                        if (item.IsChecked == true)
+                        {
+                            item.Choice.Points = (double)1 / trueAnswCount;
+                        }
+
+                        Choice choice = new Choice()
+                        {
+                            QuestionId = newQuestion.Id,
+                            Text = item.Choice.Text,
+                            Points = item.Choice.Points
+                        };
+
+                        choices.Add(choice);
+                    }
+                }
+
+                _context.Choice.AddRange(choices);
+
+                await _context.SaveChangesAsync();
+            }
+
+            return View();
+        }
 
         #endregion
 

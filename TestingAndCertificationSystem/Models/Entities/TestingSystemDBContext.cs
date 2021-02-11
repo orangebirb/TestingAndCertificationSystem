@@ -24,7 +24,6 @@ namespace TestingAndCertificationSystem
         public virtual DbSet<Company> Company { get; set; }
         public virtual DbSet<Question> Question { get; set; }
         public virtual DbSet<QuestionAnswer> QuestionAnswer { get; set; }
-        public virtual DbSet<QuestionInTest> QuestionInTest { get; set; }
         public virtual DbSet<Registration> Registration { get; set; }
         public virtual DbSet<Test> Test { get; set; }
         public virtual DbSet<TestResults> TestResults { get; set; }
@@ -51,6 +50,11 @@ namespace TestingAndCertificationSystem
                     .HasMaxLength(100)
                     .IsUnicode(false);
 
+                entity.Property(e => e.RecipientEmail)
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
                 entity.Property(e => e.Text)
                     .IsRequired()
                     .IsUnicode(false);
@@ -66,12 +70,14 @@ namespace TestingAndCertificationSystem
                     .WithMany(p => p.Choice)
                     .HasForeignKey(d => d.QuestionId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__Choice__Question__0E6E26BF");
+                    .HasConstraintName("FK__Choice__Question__7BE56230");
             });
 
             modelBuilder.Entity<Company>(entity =>
             {
                 entity.Property(e => e.Description).IsUnicode(false);
+
+                entity.Property(e => e.EstablishmentDate).HasColumnType("date");
 
                 entity.Property(e => e.FullName)
                     .IsRequired()
@@ -92,6 +98,17 @@ namespace TestingAndCertificationSystem
                     .IsRequired()
                     .HasMaxLength(50)
                     .IsUnicode(false);
+
+                entity.Property(e => e.Text)
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.HasOne(d => d.Test)
+                    .WithMany(p => p.Question)
+                    .HasForeignKey(d => d.TestId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK__Question__TestId__7CD98669");
             });
 
             modelBuilder.Entity<QuestionAnswer>(entity =>
@@ -100,34 +117,19 @@ namespace TestingAndCertificationSystem
                     .WithMany(p => p.QuestionAnswer)
                     .HasForeignKey(d => d.ChoiceId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__QuestionA__Choic__160F4887");
+                    .HasConstraintName("FK__QuestionA__Choic__00AA174D");
 
-                entity.HasOne(d => d.QuestionInTest)
+                entity.HasOne(d => d.Question)
                     .WithMany(p => p.QuestionAnswer)
-                    .HasForeignKey(d => d.QuestionInTestId)
+                    .HasForeignKey(d => d.QuestionId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__QuestionA__Quest__151B244E");
+                    .HasConstraintName("FK__QuestionA__Quest__02925FBF");
 
                 entity.HasOne(d => d.Registration)
                     .WithMany(p => p.QuestionAnswer)
                     .HasForeignKey(d => d.RegistrationId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__QuestionA__Regis__43D61337");
-            });
-
-            modelBuilder.Entity<QuestionInTest>(entity =>
-            {
-                entity.HasOne(d => d.Question)
-                    .WithMany(p => p.QuestionInTest)
-                    .HasForeignKey(d => d.QuestionId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__QuestionI__Quest__0A9D95DB");
-
-                entity.HasOne(d => d.Test)
-                    .WithMany(p => p.QuestionInTest)
-                    .HasForeignKey(d => d.TestId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__QuestionI__TestI__498EEC8D");
+                    .HasConstraintName("FK__QuestionA__Regis__019E3B86");
             });
 
             modelBuilder.Entity<Registration>(entity =>
@@ -141,14 +143,13 @@ namespace TestingAndCertificationSystem
             {
                 entity.Property(e => e.Description).IsUnicode(false);
 
-                entity.Property(e => e.DurationInMinutes)
-                    .IsRequired()
-                    .HasMaxLength(10)
-                    .IsFixedLength();
-
                 entity.Property(e => e.Instruction)
                     .IsRequired()
                     .IsUnicode(false);
+
+                entity.Property(e => e.IsPrivate)
+                    .IsRequired()
+                    .HasDefaultValueSql("((1))");
 
                 entity.Property(e => e.Link).IsUnicode(false);
 
@@ -164,7 +165,8 @@ namespace TestingAndCertificationSystem
                 entity.HasOne(d => d.AdditionalTask)
                     .WithMany(p => p.Test)
                     .HasForeignKey(d => d.AdditionalTaskId)
-                    .HasConstraintName("FK__Test__Additional__4B7734FF");
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .HasConstraintName("FK__Test__Additional__53D770D6");
             });
 
             modelBuilder.Entity<TestResults>(entity =>
@@ -173,7 +175,7 @@ namespace TestingAndCertificationSystem
                     .WithMany(p => p.TestResults)
                     .HasForeignKey(d => d.QuestionAnswerId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__TestResul__Quest__17F790F9");
+                    .HasConstraintName("FK__TestResul__Quest__7FB5F314");
 
                 entity.HasOne(d => d.Registration)
                     .WithMany(p => p.TestResults)
@@ -195,7 +197,7 @@ namespace TestingAndCertificationSystem
                     .WithMany(p => p.VerifiedUsers)
                     .HasForeignKey(d => d.TestId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__VerifiedU__TestI__4A8310C6");
+                    .HasConstraintName("FK__VerifiedU__TestI__1F63A897");
             });
 
             OnModelCreatingPartial(modelBuilder);

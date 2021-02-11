@@ -43,7 +43,8 @@ namespace TestingAndCertificationSystem.Controllers
 
             ViewData["userDetails"] = userSearch;
 
-            var usersSearchResult = _userManager.GetUsersInRoleAsync("User").Result.Where(x => x.Email.Contains(userSearch));
+            var usersSearchResult = _userManager.GetUsersInRoleAsync("User").Result.Where(x => x.Email.Contains(userSearch) 
+                || x.FirstName.Contains(userSearch) || x.LastName.Contains(userSearch));
 
             return View(usersSearchResult);
         }
@@ -101,24 +102,24 @@ namespace TestingAndCertificationSystem.Controllers
             else
             {
                 UserIdentity currentUser = await _userManager.GetUserAsync(User);
-                int userCompanyId = currentUser.CompanyId; // current user's (admin's) company id
+                //int userCompanyId = currentUser.CompanyId; // current user's (admin's) company id
 
                 user.CompanyId = 0;
 
                 var UserResult = await _userManager.UpdateAsync(user);
 
-                IdentityResult roleRemoveResult = await _userManager.RemoveFromRoleAsync(user, "CompanyModerator");
+                await _userManager.RemoveFromRoleAsync(user, "CompanyModerator");
 
                 //adding role
                 bool userRoleExists = await _roleManager.RoleExistsAsync("User");
 
                 if (!userRoleExists) //creating role if not exists
                 {
-                    IdentityResult roleResult = await _roleManager.CreateAsync(new IdentityRole("User"));
+                    await _roleManager.CreateAsync(new IdentityRole("User"));
                 }
 
                 //adding new user to role
-                var addingUserToRole = await _userManager.AddToRoleAsync(user, "User");
+                await _userManager.AddToRoleAsync(user, "User");
 
                 if (UserResult.Succeeded)
                 {
