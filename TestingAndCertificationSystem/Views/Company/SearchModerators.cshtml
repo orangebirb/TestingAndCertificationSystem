@@ -4,11 +4,11 @@
 
 <div asp-validation-summary="All" class="text-danger"></div>
 
-<form method="get" asp-action="AddModerators">
+<form method="get" asp-action="SearchModerators">
     <p>
         <input type="search" placeholder="Email or Name" value="@ViewData["userDetails"]" name="userSearch" />
         <input type="submit" value="Search" class="btn btn-primary" />
-        <a asp-action="AddModerators">Clear</a>
+        <a asp-action="SearchModerators">Clear</a>
     </p>
 </form>
 

@@ -34,7 +34,7 @@ namespace TestingAndCertificationSystem.Controllers
         } 
 
         [HttpGet]
-        public IActionResult AddModerators(string userSearch)
+        public IActionResult SearchModerators(string userSearch)
         {
             if(string.IsNullOrEmpty(userSearch) || string.IsNullOrWhiteSpace(userSearch))
             {

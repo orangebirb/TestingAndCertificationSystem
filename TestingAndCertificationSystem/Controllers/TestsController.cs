@@ -81,11 +81,7 @@ namespace TestingAndCertificationSystem.Controllers
 
                 await _context.SaveChangesAsync();
 
-                //TempData["testId"] = newTest.Id;
-                //TempData.Keep();
-
                 return RedirectToAction("Tests");
-                //return RedirectToAction("CreateAdditionalTask", newTest.Id);
             }
 
             return View();
@@ -115,6 +111,61 @@ namespace TestingAndCertificationSystem.Controllers
             }
 
             return RedirectToAction("Tests");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ChangeActivityStatusTest(int testId, DateTime endingDateTime)
+        {
+            Test testToEdit = _context.Test.Find(testId);
+
+            if (testToEdit != null)
+            {
+                
+                    if (testToEdit.IsActive == true)
+                    {
+                        testToEdit.IsActive = false;
+                    }
+                    else
+                    {
+                        if (endingDateTime > DateTime.Now)
+                        {
+                            testToEdit.TokenEndTime = endingDateTime;
+                            testToEdit.TokenStartTime = DateTime.Now;
+
+                            testToEdit.IsActive = true;
+                        }
+                    }
+
+                    await _context.SaveChangesAsync();
+            }
+
+            return RedirectToAction("TestInfopage", new { testId });
+
+        }
+
+        public IActionResult TestInfopage(int testId)
+        {
+            Test test = _context.Test.Find(testId);
+
+            if(test.AdditionalTaskId != 0)
+            {
+                test.AdditionalTask = _context.AdditionalTask.Find(test.AdditionalTaskId);
+            }
+            
+            test.Question = _context.Question.Where(x => x.TestId == test.Id).ToList();
+
+            foreach (var question in test.Question)
+            {
+                question.Choice = _context.Choice.Where(x => x.QuestionId == question.Id).ToList();
+            }
+
+            if(test != null)
+            {
+                return View(test);
+            }
+
+            return RedirectToAction("Error");
+
         }
 
         #endregion
@@ -219,16 +270,20 @@ namespace TestingAndCertificationSystem.Controllers
 
                 await _context.SaveChangesAsync();
 
-                return RedirectToAction("Tests");
+                return RedirectToAction("TestInfopage", new { testId });
             }
 
             return View();
         }
 
         [HttpPost]
-        public async Task<IActionResult> DeleteTask(int taskId)
+        public async Task<IActionResult> DeleteAdditionalTask(int taskId, int testId)
         {
             AdditionalTask taskToDelete = _context.AdditionalTask.Find(taskId);
+
+            //gets test with current task
+            //var testId = _context.Test.Where(x => taskId == x.AdditionalTaskId);
+            //без передавания с параметров
 
             if (taskToDelete != null)
             {
@@ -236,7 +291,7 @@ namespace TestingAndCertificationSystem.Controllers
                 await _context.SaveChangesAsync();
             }
 
-            return RedirectToAction("Tests");
+            return RedirectToAction("TestInfopage", new { testId });
         }
         #endregion
     }
