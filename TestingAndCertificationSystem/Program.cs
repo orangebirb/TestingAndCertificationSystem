@@ -14,11 +14,6 @@ namespace TestingAndCertificationSystem
         public static void Main(string[] args)
         {
             CreateHostBuilder(args).Build().Run();
-
-            //using (TestingSystemDBContext TsDb = new TestingSystemDBContext())
-            //{
-                ///
-            //}
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>

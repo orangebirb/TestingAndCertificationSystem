@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -147,20 +146,20 @@ namespace TestingAndCertificationSystem.Controllers
         {
             Test test = _context.Test.Find(testId);
 
-            if(test.AdditionalTaskId != 0)
-            {
-                test.AdditionalTask = _context.AdditionalTask.Find(test.AdditionalTaskId);
-            }
-            
-            test.Question = _context.Question.Where(x => x.TestId == test.Id).ToList();
-
-            foreach (var question in test.Question)
-            {
-                question.Choice = _context.Choice.Where(x => x.QuestionId == question.Id).ToList();
-            }
-
             if(test != null)
             {
+                if (test.AdditionalTaskId != 0)
+                {
+                    test.AdditionalTask = _context.AdditionalTask.Find(test.AdditionalTaskId);
+                }
+
+                test.Question = _context.Question.Where(x => x.TestId == test.Id).ToList();
+
+                foreach (var question in test.Question)
+                {
+                    question.Choice = _context.Choice.Where(x => x.QuestionId == question.Id).ToList();
+                }
+
                 return View(test);
             }
 
@@ -168,6 +167,25 @@ namespace TestingAndCertificationSystem.Controllers
 
         }
 
+        public async Task<IActionResult> Instruction(int testId)
+        {
+            Test test = _context.Test.Find(testId);
+
+            UserIdentity testAuthor = await _userManager.FindByIdAsync(test.TestAuthorId);
+            var company = _context.Company.Where(x => x.Id == testAuthor.CompanyId).FirstOrDefault();
+
+            ViewBag.TestAuthor = testAuthor;
+            ViewBag.Company = company;
+
+            if (test != null)
+            {
+                ViewBag.QuestionCount = _context.Question.Where(x => x.TestId == test.Id).Count();
+
+                return View(test);
+            }
+            return RedirectToAction("Error");
+        }
+            
         #endregion
 
         #region questions management
@@ -179,7 +197,7 @@ namespace TestingAndCertificationSystem.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateQuestion(QuestionDataViewModel model, int testId)
+        public async Task<IActionResult> CreateQuestion(QuestionDataModel model, int testId)
         {
             List<Choice> choices = new List<Choice>();
 
@@ -226,6 +244,19 @@ namespace TestingAndCertificationSystem.Controllers
             return View();
         }
 
+        [HttpPost]
+        public async Task<IActionResult> DeleteQuestion(int questionId, int testId)
+        {
+            Question questionToDelete = _context.Question.Find(questionId);
+
+            if (questionToDelete != null)
+            {
+                _context.Question.Remove(questionToDelete);
+                await _context.SaveChangesAsync();
+            }
+
+            return RedirectToAction("TestInfopage", new { testId });
+        }
         #endregion
 
         #region additional task management
@@ -233,7 +264,7 @@ namespace TestingAndCertificationSystem.Controllers
         [HttpGet]
         public IActionResult CreateAdditionalTask(int testId)
         {
-            TempData["testId"] = testId;
+            //TempData["testId"] = testId;
 
             return View();
         }
@@ -292,6 +323,131 @@ namespace TestingAndCertificationSystem.Controllers
             }
 
             return RedirectToAction("TestInfopage", new { testId });
+        }
+        #endregion
+
+        #region user test management
+
+        [HttpPost]
+        public async Task<IActionResult> Registration(int testId)
+        {
+            if(testId != 0)
+            {
+                UserIdentity currentUser = await _userManager.GetUserAsync(User);
+
+                var currentTest = _context.Test.Find(testId);
+
+                if(currentTest != null)
+                {
+                    Registration registration = _context.Registration.Where(x => x.UserId == currentUser.Id
+                        && x.TestId == testId
+                        && x.EndingTime > DateTime.Now).FirstOrDefault();
+
+                    if (registration != null)
+                    {
+                        return RedirectToAction("Test", new { token = registration.Token });
+                    }
+                    else
+                    {
+                        Registration newRegistration = new Registration()
+                        {
+                            UserId = currentUser.Id,
+                            TestId = testId,
+                            Token = Guid.NewGuid(),
+                            EntryTime = DateTime.Now,
+                            EndingTime = DateTime.Now.AddMinutes(currentTest.DurationInMinutes)
+                        };
+
+                        _context.Registration.Add(newRegistration);
+
+                        await _context.SaveChangesAsync();
+
+                        return RedirectToAction("Test", new { token = newRegistration.Token, qNum = 1 });
+                    }
+                    
+                }  
+            }
+
+            return View("Error");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> SubmitAnswer(QuestionDataModel model, Guid token, int qNum)
+        {
+            if(model != null)
+            {
+                var userAnswers = model.Choices.Where(x => x.IsChecked == true).ToList();
+
+                if(userAnswers.Count != 0)
+                {
+                    List<QuestionAnswer> listQA = new List<QuestionAnswer>();
+
+                    userAnswers.ForEach(x => x.Choice.Points = _context.Choice.Where(y => y.Id == x.Choice.Id).FirstOrDefault().Points); //sets mark
+
+                    float mark = (float)userAnswers.Sum(x => x.Choice.Points); //calculates total mark for all correct answers
+
+                    foreach (var choice in userAnswers)
+                    {
+                        QuestionAnswer qa = new QuestionAnswer();
+
+                        qa.RegistrationId = _context.Registration.Where(x => x.Token == token).FirstOrDefault().Id;
+                        qa.QuestionId = model.Question.Id;
+                        qa.ChoiceId = choice.Choice.Id;
+                        qa.TotalMark = mark;
+
+                        listQA.Add(qa);
+                    }
+
+                    _context.QuestionAnswer.AddRange(listQA);
+
+                    await _context.SaveChangesAsync();
+                }
+
+                if (qNum == 0)
+                    qNum = 1;
+
+                qNum++;
+
+                return RedirectToAction("Test", new { token = token, qNum = qNum });
+            }
+            return View("Error");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Test(Guid token, int qNum)
+        {
+            if (token != null)
+            {
+                var registration = _context.Registration.Where(x => x.Token == token).FirstOrDefault();
+
+                if (registration != null)
+                {
+                    if (qNum < 1)
+                        qNum = 1;
+
+                    ViewBag.Token = registration.Token;
+                    ViewBag.EntryTime = registration.EntryTime;
+                    ViewBag.EndTime = registration.EndingTime;
+
+                    var test = _context.Test.Where(x => x.Id == registration.TestId).FirstOrDefault();
+
+                    if (test != null)
+                    {
+                        QuestionDataModel question = new QuestionDataModel();
+
+                        question.Question = _context.Question.Where(x => x.TestId == test.Id).ToList()[qNum - 1];
+                        question.Choices = new List<ChoiceModel>();
+
+                        foreach (var choice in _context.Choice.Where(x => x.QuestionId == question.Question.Id).ToList())
+                        {
+                            question.Choices.Add(new ChoiceModel { Choice = choice });
+                        }
+
+                        return View(question);
+                    }
+                }
+            }
+            return View("Error");
         }
         #endregion
     }

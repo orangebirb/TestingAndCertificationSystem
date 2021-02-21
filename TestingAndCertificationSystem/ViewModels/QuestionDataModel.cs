@@ -6,13 +6,13 @@ using System.Threading.Tasks;
 
 namespace TestingAndCertificationSystem.ViewModels
 {
-    public class QuestionDataViewModel
+    public class QuestionDataModel
     {
         public Question Question { get; set; }
-        public List<ChoiceViewModel> Choices { get; set; }
+        public List<ChoiceModel> Choices { get; set; }
     }
 
-    public class ChoiceViewModel
+    public class ChoiceModel
     {
         public Choice Choice { get; set; }
         public bool IsChecked { get; set; }

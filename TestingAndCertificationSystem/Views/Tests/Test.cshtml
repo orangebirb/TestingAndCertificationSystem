@@ -1,0 +1,94 @@
+﻿@model TestingAndCertificationSystem.ViewModels.QuestionDataModel
+
+<h2>Test is here</h2>
+@{
+    var qNum = "0";
+
+    if (Context.Request.Query["questionNum"] != string.Empty)
+    {
+        qNum = Context.Request.Query["qNum"];
+    }
+}
+
+@if (ViewBag.ErrorMessage != null)
+{
+    <div class="alert alert-danger" role="alert">
+        @ViewBag.ErrorMessage
+    </div>
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <p style="font-size: 20pt">
+            @Model.Question.Text
+            <br />
+        </p>
+
+        @switch (Model.Question.QuestionType)
+        {
+            case "RADIO":
+
+                <form id="submitAnswForm" asp-action="SubmitAnswer" method="post" asp-route-token="@ViewBag.Token" asp-route-qNum="@qNum">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                    <input asp-for="Question.Id" type="hidden" />
+
+                    @for (int i = 0; i < Model.Choices.Count(); i++)
+                    {
+                        <input id="@Model.Choices[i].Choice.Id" value="true" type="radio" name="radio" />
+                        <label>@Model.Choices[i].Choice.Text</label>
+
+                        <input id="check_@Model.Choices[i].Choice.Id" asp-for="@Model.Choices[i].IsChecked" type="hidden" />
+                        <input asp-for="@Model.Choices[i].Choice.Id" type="hidden" />
+                        <br />
+                    }
+
+                    <div class="form-group">
+                        <input id="CreateBtn" type="submit" value="Create" class="btn btn-primary" onclick="SetAttr()" />
+                    </div>
+
+                </form>
+
+                break;
+
+            case "CHECKBOX":
+
+                <form id="submitAnswForm" asp-action="SubmitAnswer" method="post" asp-route-token="@ViewBag.Token" asp-route-qNum="@qNum">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                    <input asp-for="Question.Id" type="hidden" />
+
+                    @for (int i = 0; i < Model.Choices.Count(); i++)
+                    {
+                        <input type="checkbox" value="true" asp-for="Choices[i].IsChecked">
+                        <label>@Model.Choices[i].Choice.Text</label>
+                        <input asp-for="@Model.Choices[i].Choice.Id" type="hidden" />
+                        <br />
+                    }
+
+                    <div class="form-group">
+                        <input id="CreateBtn" type="submit" value="Create" class="btn btn-primary" />
+                    </div>
+
+                </form>
+
+                break;
+        }
+
+    </div>
+</div>
+
+<script>
+    function SetAttr() { //sets isChecked value to hidden form input
+
+        var ds = document.getElementsByName('radio')
+
+        for (var i = 0; i < ds.length; i++) {
+
+            var el = document.getElementById('check_' + ds[i].id);
+            document.getElementById(el.id).setAttribute('value', ds[i].checked);
+        }
+    }
+</script>
+
+<br />

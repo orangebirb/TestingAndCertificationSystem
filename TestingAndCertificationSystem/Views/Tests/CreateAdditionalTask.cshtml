@@ -2,8 +2,10 @@
 @{
     ViewBag.Title = "Additional task";
 }
-
-<a class="arrow" asp-controller="Tests" asp-action="TestInfopage" asp-route-testId="@TempData["testId"]">Return to test</a>
+@{
+    var testid = Context.Request.Query["testId"];
+}
+<a class="arrow" asp-controller="Tests" asp-action="TestInfopage" asp-route-testId="@testid">Return to test</a>
 
 <form asp-action="CreateAdditionalTask" asp-controller="Tests">
     <div asp-validation-summary="All" class="alert-danger"></div>
@@ -14,11 +16,11 @@
     </div>
     <div class="form-group">
         <label asp-for="Description" class="control-label">Description</label>
-        <textarea type="text" asp-for="Description" rows="3" class="form-control" ></textarea>
+        <textarea type="text" asp-for="Description" rows="3" class="form-control"></textarea>
     </div>
     <div class="form-group">
         <label asp-for="Text" class="control-label">Text</label>
-        <textarea type="text" asp-for="Text" rows="5" class="form-control" ></textarea>
+        <textarea type="text" asp-for="Text" rows="5" class="form-control"></textarea>
     </div>
     <div class="form-group">
         <label asp-for="ExpirationDate" class="control-label">Expiration Date</label>
@@ -26,6 +28,6 @@
     </div>
 
     <div class="form-group">
-        <input type="submit" value="Create" class="btn btn-primary", asp-route-testId="@TempData["testId"]"/>
+        <input type="submit" value="Create" class="btn btn-primary" , asp-route-testId="@testid" />
     </div>
 </form>
