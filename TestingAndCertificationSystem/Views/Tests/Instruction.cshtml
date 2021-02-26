@@ -4,78 +4,78 @@
     var testid = Context.Request.Query["testId"];
 }
 
-    <div class="container">
-        <div class="row">
-            <div class="col-md-6">
-                <h2>@Model.Name @Model.Id</h2>
-                @Model.Description
-            </div>
-            <div class="col-md-6">
-                <br />
-                Test Duration: @Model.DurationInMinutes minutes
-                <br />Questions in test: @ViewBag.QuestionCount
-                @if (Model.IsActive == true)
-                {
-                    <br /><div>Test will be closed at @Model.TokenEndTime</div>
-                }
-
-            </div>
+<div class="container">
+    <div class="row">
+        <div class="col-md-6">
+            <h2>@Model.Name @Model.Id</h2>
+            @Model.Description
         </div>
-        <br /><br />
-
-        <div class="row">
-            <div class="col-md-12">
-                <div class="alert alert-info" role="alert">
-                    <div class="row">
-                    </div>
-                    Contact information:
-                    <div>
-                        <br /><b>Email: </b>@ViewBag.TestAuthor.Email
-                        <br />@ViewBag.TestAuthor.FirstName @ViewBag.TestAuthor.LastName
-                    </div>
-                    <div>
-                        <br /><b>Company name: </b>@ViewBag.Company.FullName
-                        <br /><b>Description: </b>@ViewBag.Company.Description
-                        <br /><b>Url: </b>@ViewBag.Company.WebsiteUrl
-                    </div>
-                </div>
-                <br />
-                <br />
-                
-            </div>
-        </div>
-
-        @if (Model.IsActive == true)
-        {
-    <div>
-        <h2>Before you begin, please read the following instructions carefully</h2>
-        <br />
-        @Model.Instruction
-
-        <br />
-        <br />
-        @if (User.Identity.IsAuthenticated)
-        {
-            @if (!User.IsInRole("CompanyAdmin"))
+        <div class="col-md-6">
+            <br />
+            Test Duration: @Model.DurationInMinutes minutes
+            <br />Questions in test: @ViewBag.QuestionCount
+            @if (Model.IsActive == true)
             {
-                <form asp-controller="Tests" asp-action="Registration" asp-route-testId="@Model.Id">
-                    <button type="submit" class="btn btn-sm btn-info">Start test</button>
-                </form>
+                <br /><div>Test will be closed at @Model.TokenEndTime</div>
             }
-        }
-        else
-        {
-            <div class="alert alert-info" role="alert">
-                You have to login first. If you don`t have an account yet - register.
-            </div>
-        }
-    </div>
-        }
-        else
-        {
-            <div class="alert alert-danger" role="alert">
-                This test is closed. Contact test author for more information.
-            </div>
-        }
 
+        </div>
     </div>
+    <br /><br />
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="alert alert-info" role="alert">
+                <div class="row">
+                </div>
+                Contact information:
+                <div>
+                    <br /><b>Email: </b>@ViewBag.TestAuthor.Email
+                    <br />@ViewBag.TestAuthor.FirstName @ViewBag.TestAuthor.LastName
+                </div>
+                <div>
+                    <br /><b>Company name: </b>@ViewBag.Company.FullName
+                    <br /><b>Description: </b>@ViewBag.Company.Description
+                    <br /><b>Url: </b>@ViewBag.Company.WebsiteUrl
+                </div>
+            </div>
+            <br />
+            <br />
+
+        </div>
+    </div>
+
+    @if (Model.IsActive == true)
+    {
+        <div>
+            <h2>Before you begin, please read the following instructions carefully</h2>
+            <br />
+            @Model.Instruction
+
+            <br />
+            <br />
+            @if (User.Identity.IsAuthenticated)
+            {
+                @if (!User.IsInRole("CompanyAdmin"))
+                {
+                    <form asp-controller="Tests" asp-action="Registration" asp-route-testId="@testid">
+                        <button type="submit" class="btn btn-sm btn-info">Start test</button>
+                    </form>
+                }
+            }
+            else
+            {
+                <div class="alert alert-info" role="alert">
+                    You have to login first. If you don`t have an account yet - register.
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-danger" role="alert">
+            This test is closed. Contact test author for more information.
+        </div>
+    }
+
+</div>

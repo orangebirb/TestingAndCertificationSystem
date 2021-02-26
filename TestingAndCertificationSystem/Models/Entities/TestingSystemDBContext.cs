@@ -69,8 +69,7 @@ namespace TestingAndCertificationSystem
                 entity.HasOne(d => d.Question)
                     .WithMany(p => p.Choice)
                     .HasForeignKey(d => d.QuestionId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__Choice__Question__7BE56230");
+                    .HasConstraintName("FK__Choice__Question__0D0FEE32");
             });
 
             modelBuilder.Entity<Company>(entity =>
@@ -101,14 +100,12 @@ namespace TestingAndCertificationSystem
 
                 entity.Property(e => e.Text)
                     .IsRequired()
-                    .HasMaxLength(50)
                     .IsUnicode(false);
 
                 entity.HasOne(d => d.Test)
                     .WithMany(p => p.Question)
                     .HasForeignKey(d => d.TestId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__Question__TestId__7CD98669");
+                    .HasConstraintName("FK__Question__TestId__0C1BC9F9");
             });
 
             modelBuilder.Entity<QuestionAnswer>(entity =>
@@ -117,19 +114,25 @@ namespace TestingAndCertificationSystem
                     .WithMany(p => p.QuestionAnswer)
                     .HasForeignKey(d => d.ChoiceId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__QuestionA__Choic__00AA174D");
+                    .HasConstraintName("FK__QuestionA__Choic__23F3538A");
 
                 entity.HasOne(d => d.Question)
                     .WithMany(p => p.QuestionAnswer)
                     .HasForeignKey(d => d.QuestionId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__QuestionA__Quest__02925FBF");
+                    .HasConstraintName("FK__QuestionA__Quest__25DB9BFC");
 
                 entity.HasOne(d => d.Registration)
                     .WithMany(p => p.QuestionAnswer)
                     .HasForeignKey(d => d.RegistrationId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__QuestionA__Regis__019E3B86");
+                    .HasConstraintName("FK__QuestionA__Regis__24E777C3");
+
+                entity.HasOne(d => d.TestResult)
+                    .WithMany(p => p.QuestionAnswer)
+                    .HasForeignKey(d => d.TestResultId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK__QuestionA__TestR__26CFC035");
             });
 
             modelBuilder.Entity<Registration>(entity =>
@@ -171,12 +174,6 @@ namespace TestingAndCertificationSystem
 
             modelBuilder.Entity<TestResults>(entity =>
             {
-                entity.HasOne(d => d.QuestionAnswer)
-                    .WithMany(p => p.TestResults)
-                    .HasForeignKey(d => d.QuestionAnswerId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__TestResul__Quest__7FB5F314");
-
                 entity.HasOne(d => d.Registration)
                     .WithMany(p => p.TestResults)
                     .HasForeignKey(d => d.RegistrationId)

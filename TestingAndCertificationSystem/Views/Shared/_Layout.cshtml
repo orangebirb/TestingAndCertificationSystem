@@ -11,7 +11,9 @@
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Tartaglia</a>
+
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Testing and Certification</a>
+
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -49,16 +51,24 @@
                                     </div>
                                 </li>
                             }
-                            <li class="nav-item ">
-                                <form method="post" asp-controller="Account" asp-action="Logout">
-                                    <input class="nav-link text-dark" type="submit" value="Logout" />
-                                </form>
+
+                            <li class="nav-item dropdown" style="margin-left:auto">
+                                <a class="nav-link text-dark" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    Account
+                                </a>
+                                <div class="dropdown-menu dropdown-menu-right">
+                                    <div class="dropdown-item-text"><b>@User.Identity.Name</b></div>
+                                    <div class="dropdown-divider"></div>
+                                    <form method="post" asp-controller="Account" asp-action="Logout">
+                                        <input class="dropdown-item" type="submit" value="Logout" />
+                                    </form>
+                                </div>
                             </li>
                         </ul>
                     }
                     else
                     {
-                        <ul class="navbar-nav flex-grow-1">
+                        <ul class="navbar-nav" style="margin-left:auto">
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Login">Sign In</a>
                             </li>
@@ -66,7 +76,7 @@
                                 <a class="nav-link text-dark" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                     Sign Up
                                 </a>
-                                <div class="dropdown-menu">
+                                <div class="dropdown-menu dropdown-menu-right">
                                     <a class="dropdown-item" asp-area="" asp-controller="Account" asp-action="RegistrationAsUser">As user</a>
                                     <a class="dropdown-item" asp-area="" asp-controller="Account" asp-action="RegistrationAsCompany">As company</a>
                                 </div>
@@ -83,11 +93,6 @@
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2021 - TestingAndCertificationSystem - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-        </div>
-    </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>

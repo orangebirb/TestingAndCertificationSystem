@@ -27,7 +27,7 @@ namespace TestingAndCertificationSystem
         public DateTime? TokenStartTime { get; set; }
         public DateTime? TokenEndTime { get; set; }
         public int? AdditionalTaskId { get; set; }
-        public bool? IsPrivate { get; set; }
+        public bool IsPrivate { get; set; }
         public bool IsActive { get; set; }
         public double PassingMarkInPercents { get; set; }
         public string Link { get; set; }

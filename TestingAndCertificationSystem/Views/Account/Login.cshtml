@@ -1,42 +1,39 @@
 ﻿@model TestingAndCertificationSystem.ViewModels.LoginViewModel
 
-<div class="container">
-    <div class="row">
-        <div class="col-md-4 mx-auto">
-            <div class="card">
-                <div class="card-body">
-                    <div class="mb-3">
-                        <h3>Sign In</h3>
-                    </div>
-                    <form method="post" asp-controller="Account" asp-action="Login" asp-route-returnUrl="@Model.ReturnUrl">
-                        <div asp-validation-summary="ModelOnly" class="alert-danger"></div>
-                        <div class="mb-3">
-                            <div>
-                                <input asp-for="Email" type="email" class="form-control" placeholder="Email">
-                                <span asp-validation-for="Email"></span>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <div>
-                                <input asp-for="Password" type="password" class="form-control" placeholder="Password">
-                                <span asp-validation-for="Password"></span>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <div class="form-check">
-                                <input asp-for="RememberMe" type="checkbox" class="form-check-input">
-                                <label asp-for="RememberMe" class="form-check-label" for="dropdownCheck">
-                                    Remember me
-                                </label>
-                            </div>
-                        </div>
+    <body style="background-image: url('../images/login_bg.jpg'); background-size:cover">
+            <div class="row">
+                <div class="col-md-4 mx-auto">
+                    <div class="card" style="top:50%">
+                        <div class="card-body">
 
-                        <div>
-                            <input type="submit" class="btn btn-danger" value="Login" />
+                            <div class="card-block text-center">
+                                <h3 class="card-title">Login</h3>
+                                <br />
+                            </div>
+
+                            <form method="post" asp-controller="Account" asp-action="Login" asp-route-returnUrl="@Model.ReturnUrl">
+                                <div asp-validation-summary="All" class="alert-danger"></div>
+                                <div class="mb-3">
+                                    <div>
+                                        <input asp-for="Email" type="email" class="form-control" placeholder="Email">
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <div>
+                                        <input asp-for="Password" type="password" class="form-control" placeholder="Password">
+                                    </div>
+                                </div>
+                                <div class="card-block text-center">
+                                    <input type="submit" class="btn btn-primary btn-block" value="Login" />
+                                    <br />
+                                    <p>Don't have an account? 
+                                        <a class="btn-link" asp-controller="Account" asp-action="RegistrationAsUser">Register</a>
+                                    </p>
+                                    <p>&copy 2021 Developed by KI-17022</p>
+                                </div>
+                            </form>
                         </div>
-                    </form>
+                    </div>
                 </div>
             </div>
-        </div>
-    </div>
-</div>
+    </body>

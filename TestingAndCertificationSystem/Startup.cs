@@ -59,7 +59,8 @@ namespace TestingAndCertificationSystem
             });
 
             app.UseSession();
-            
+
+            app.UseStaticFiles();
         }
     }
 }

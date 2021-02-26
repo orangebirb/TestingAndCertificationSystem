@@ -9,13 +9,9 @@ namespace TestingAndCertificationSystem
 {
     public class QuestionAnswer
     {
-        public QuestionAnswer()
-        {
-            TestResults = new HashSet<TestResults>();
-        }
-
         public int Id { get; set; }
         public int RegistrationId { get; set; }
+        public int TestResultId { get; set; }
         public int QuestionId { get; set; }
         public int ChoiceId { get; set; }
         public double TotalMark { get; set; }
@@ -23,6 +19,6 @@ namespace TestingAndCertificationSystem
         public virtual Choice Choice { get; set; }
         public virtual Question Question { get; set; }
         public virtual Registration Registration { get; set; }
-        public virtual ICollection<TestResults> TestResults { get; set; }
+        public virtual TestResults TestResult { get; set; }
     }
 }

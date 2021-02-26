@@ -8,41 +8,33 @@ namespace TestingAndCertificationSystem.ViewModels
 {
     public class RegistrationViewModel
     {
-        [Required]
-        [Display(Name = "First Name")]
+        [Required(ErrorMessage = "First Name is required")]
         public string FirstName { get; set; }
 
-        [Required]
-        [Display(Name = "Last Name")]
+        [Required(ErrorMessage = "Last Name is required")]
         public string LastName { get; set; }
 
-        [Required]
-        [Display(Name = "City")]
+        [Required(ErrorMessage = "City is required")]
         public string City { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Email is required")]
         [DataType(DataType.EmailAddress)]
-        [Display(Name = "Email")]
         public string Email { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Phone is required")]
         [DataType(DataType.PhoneNumber)]
-        [Display(Name = "Phone")]
         public string Phone { get; set; }
 
-        [Required]
-        [Display(Name = "Description")]
+        [Required(ErrorMessage = "Description is required")]
         public string Description { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Password is required")]
         [DataType(DataType.Password)]
-        [Display(Name = "Password")]
         public string Password { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Password confirm is required")]
         [Compare("Password", ErrorMessage = "Passwords does not match")]
         [DataType(DataType.Password)]
-        [Display(Name = "Confirm password")]
         public string PasswordConfirm { get; set; }
     }
 }

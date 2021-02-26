@@ -8,6 +8,8 @@
     {
         qNum = Context.Request.Query["qNum"];
     }
+
+    var timeRemaining = (DateTime)ViewBag.EndTime - (DateTime.Now);
 }
 
 @if (ViewBag.ErrorMessage != null)
@@ -16,6 +18,8 @@
         @ViewBag.ErrorMessage
     </div>
 }
+
+@timeRemaining
 
 <div class="row">
     <div class="col-md-12">
@@ -44,7 +48,7 @@
                     }
 
                     <div class="form-group">
-                        <input id="CreateBtn" type="submit" value="Create" class="btn btn-primary" onclick="SetAttr()" />
+                        <input id="CreateBtn" type="submit" value="Submit answer" class="btn btn-primary" onclick="SetAttr()" />
                     </div>
 
                 </form>
@@ -67,7 +71,7 @@
                     }
 
                     <div class="form-group">
-                        <input id="CreateBtn" type="submit" value="Create" class="btn btn-primary" />
+                        <input id="CreateBtn" type="submit" value="Submit answer" class="btn btn-primary" />
                     </div>
 
                 </form>

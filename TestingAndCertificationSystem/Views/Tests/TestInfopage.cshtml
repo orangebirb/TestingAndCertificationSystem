@@ -26,6 +26,9 @@
                 <form asp-controller="Tests" asp-action="Instruction" asp-route-testId="@Model.Id" method="post">
                     <button type="submit" class="btn btn-sm btn-danger"> INSTRUCTION </button>
                 </form>
+
+                <a class="btn btn-success" asp-area="" asp-controller="Tests" asp-action="EditTest" asp-route-testId="@Model.Id">Edit test</a>
+
                 <ul class="list-group list-group-flush">
                     <li class="list-group-item">@Model.Description</li>
                     <li class="list-group-item"><b>Time allowed: </b>@Model.DurationInMinutes</li>
@@ -90,6 +93,9 @@
                     <br />@Model.AdditionalTask.Text
                     <br />@Model.AdditionalTask.ExpirationDate
                     <br />
+
+                    <br /><a class="btn btn-success" asp-area="" asp-controller="Tests" asp-action="EditAdditionalTask" asp-route-taskId="@Model.AdditionalTaskId">Edit additional task</a>
+
                     <form asp-controller="Tests" asp-action="DeleteAdditionalTask" asp-route-taskId="@Model.AdditionalTask.Id" , asp-route-testId="@Model.Id" method="post">
                         <button type="submit" class="btn btn-sm btn-danger">Delete</button>
                     </form>

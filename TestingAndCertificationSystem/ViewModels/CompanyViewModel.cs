@@ -8,24 +8,19 @@ namespace TestingAndCertificationSystem.ViewModels
 {
     public class CompanyViewModel
     {
-        [Required]
-        [Display(Name = "Full Name")]
+        [Required(ErrorMessage = "Company name is required")]
         public string FullName { get; set; }
 
         [MaxLength(50)]
-        [Display(Name = "Short Name")]
         public string ShortName { get; set; }
 
         [DataType(DataType.Date)]
-        [Display(Name = "Establishment date")]
         public DateTime? EstablishmentDate { get; set; }
 
         [DataType(DataType.MultilineText)]
-        [Display(Name = "Description")]
         public string Description { get; set; }
 
         [MaxLength(50)]
-        [Display(Name = "Website")]
         public string WebsiteUrl { get; set; }
     }
 }

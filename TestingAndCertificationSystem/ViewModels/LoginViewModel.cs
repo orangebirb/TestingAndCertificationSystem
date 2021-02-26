@@ -8,17 +8,12 @@ namespace TestingAndCertificationSystem.ViewModels
 {
     public class LoginViewModel
     {
-        [Required]
-        [Display(Name = "Email")]
+        [Required(ErrorMessage = "Email is required")]
         public string Email { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Password is required")]
         [DataType(DataType.Password)]
-        [Display(Name = "Password")]
         public string Password { get; set; }
-
-        [Display(Name = "Remember?")]
-        public bool RememberMe { get; set; }
 
         public string ReturnUrl { get; set; }
     }

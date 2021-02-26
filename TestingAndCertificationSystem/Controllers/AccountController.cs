@@ -167,7 +167,7 @@ namespace TestingAndCertificationSystem.Controllers
         {
             if (ModelState.IsValid)
             {
-                var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, false);
+                var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, true, false);
 
                 if (result.Succeeded)
                 {

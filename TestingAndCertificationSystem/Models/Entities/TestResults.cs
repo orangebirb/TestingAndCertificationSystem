@@ -9,13 +9,17 @@ namespace TestingAndCertificationSystem
 {
     public class TestResults
     {
+        public TestResults()
+        {
+            QuestionAnswer = new HashSet<QuestionAnswer>();
+        }
+
         public int Id { get; set; }
         public int RegistrationId { get; set; }
-        public int QuestionAnswerId { get; set; }
         public double FinalMarkInPercents { get; set; }
         public bool IsPassed { get; set; }
 
-        public virtual QuestionAnswer QuestionAnswer { get; set; }
         public virtual Registration Registration { get; set; }
+        public virtual ICollection<QuestionAnswer> QuestionAnswer { get; set; }
     }
 }

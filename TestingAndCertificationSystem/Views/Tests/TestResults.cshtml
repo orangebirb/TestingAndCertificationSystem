@@ -1,0 +1,17 @@
+﻿@model TestingAndCertificationSystem.TestResults
+
+<h2>Results</h2>
+
+<br />
+Congratulations!
+<br />You scored @Model.FinalMarkInPercents% from @ViewBag.RequiredMinMark% required
+
+@if (Model.IsPassed)
+{
+    <span><br /><br />Your info has been sent to test's author.</span>
+}
+else
+{
+    <span><br /><br />You have failpassed the test</span>
+}
+<br />
