@@ -11,8 +11,8 @@ namespace TestingAndCertificationSystem
     {
         public int Id { get; set; }
         public int RegistrationId { get; set; }
-        public int TestResultId { get; set; }
-        public int QuestionId { get; set; }
+        public int? TestResultId { get; set; }
+        public int? QuestionId { get; set; }
         public int ChoiceId { get; set; }
         public double TotalMark { get; set; }
 

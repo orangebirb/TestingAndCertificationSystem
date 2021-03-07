@@ -6,6 +6,7 @@
     <title>@ViewData["Title"] - TestingAndCertificationSystem</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" />
+    <link href="~/lib/font-awesome/css/all.css" rel="stylesheet" />
 </head>
 <body>
     <header>
@@ -49,6 +50,15 @@
                                         <a class="dropdown-item" asp-controller="Tests" asp-action="Tests">Tests</a>
                                         <a class="dropdown-item" asp-controller="Tests" asp-action="CreateTest">Add a new test</a>
                                     </div>
+                                </li>
+                            }
+
+                             @if (User.IsInRole("User"))
+                            {
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link text-dark" asp-controller="Tests" asp-action="UserAttempts">
+                                        Test attempts
+                                    </a>
                                 </li>
                             }
 

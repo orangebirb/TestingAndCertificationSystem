@@ -1,0 +1,67 @@
+﻿@model List<TestingAndCertificationSystem.TestResults>
+
+@{
+    List<TestingAndCertificationSystem.Registration> registrations = ViewBag.registrations;
+}
+
+<div class="col-md-10">
+    <h2>Your tests attempts</h2>
+</div>
+
+
+@if (Model.Count() == 0)
+{
+    <div class="col-md-10">
+        <div class="alert alert-info" role="alert">
+            No attempts found
+        </div>
+    </div>
+}
+else
+{
+    <table class="table">
+        <tr>
+            <th>Test</th>
+            <th>Start time</th>
+            <th>End time</th>
+            <th>Mark</th>
+            <th>Is passed</th>
+            <th></th>
+        </tr>
+        @foreach (var attempt in Model)
+        {
+            var registration = registrations.Where(x => x.Id == attempt.RegistrationId).FirstOrDefault();
+
+            <tr>
+                <td>
+                    <form asp-controller="Tests" asp-action="Instruction" asp-route-testId="@registration.TestId" method="post">
+                        <button type="submit" class="btn btn-sm btn-outline-info"> Test page </button>
+                    </form>
+                </td>
+                <td>
+                    @registration.EntryTime
+                </td>
+                <td>
+                    @registration.EndingTime
+                </td>
+                <td>
+                    @attempt.FinalMarkInPercents
+                </td>
+                <td>
+                    @if (attempt.IsPassed == true)
+                    {
+                        <div class="alert alert-success" style="line-height: 30px; padding: 0px 15px;">
+                            Passed
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-danger" style="line-height: 30px; padding: 0px 15px;">
+                            Failed
+                        </div>
+                    }
+                </td>
+            </tr>
+        }
+    </table>
+}

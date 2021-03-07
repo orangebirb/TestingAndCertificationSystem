@@ -70,6 +70,38 @@ body {
   line-height: 60px; /* Vertically center the text there */
 }
 
-.test {
-    color:forestgreen
+/*CUSTOM*/
+
+.alert-orange {
+    background-color: white;
+}
+
+.border-orange1 {
+    border-color: #ee9617;
+}
+
+.border-orange2 {
+    border-color: #fe5858;
+}
+
+.text-gradient-orange1 {
+    background: linear-gradient(315deg, #fe5858 0%, #ee9617 74%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: #ee9617;
+}
+
+.text-gradient-orange2 {
+    background: linear-gradient(315deg, #ee9617 0%, #fe5858 74%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: #ee9617;
+}
+
+.orange1 {
+    color: #ee9617;
+}
+
+.orange2 {
+    color: #fe5858;
 }

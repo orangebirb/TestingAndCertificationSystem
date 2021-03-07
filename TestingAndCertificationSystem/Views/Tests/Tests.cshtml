@@ -8,6 +8,7 @@
         <th>Description</th>
         <th>Duration</th>
         <th>Is active</th>
+        <th>Attempts</th>
         <th></th>
         <th></th>
     </tr>
@@ -21,17 +22,22 @@
                 @{
                     if (test.IsActive == true)
                     {
-                        <form asp-controller="Tests" asp-action="ChangeActivityStatusTest" asp-route-testId="@test.Id" method="post">
-                            <button type="submit" class="btn btn-sm btn-danger"> Deactivate </button>
-                        </form>
+                        <div class="alert alert-success" style=" line-height: 30px; padding: 0px 15px;">
+                            Active
+                        </div>
                     }
                     else
                     {
-                        <form asp-controller="Tests" asp-action="ChangeActivityStatusTest" asp-route-testId="@test.Id" method="post">
-                            <button type="submit" class="btn btn-sm btn-success"> Activate </button>
-                        </form>
+                        <div class="alert alert-danger" style=" line-height: 30px; padding: 0px 15px;">
+                            Not active
+                        </div>
                     }
                 }
+            </td>
+            <td>
+                <form asp-controller="Tests" asp-action="TestAttempts" asp-route-testId="@test.Id">
+                    <button type="submit" class="btn btn-sm btn-success"> Attempts </button>
+                </form>
             </td>
             <td>
                 <form asp-controller="Tests" asp-action="TestInfopage" asp-route-testId="@test.Id">

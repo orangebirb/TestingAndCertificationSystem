@@ -1,0 +1,138 @@
+﻿@model List<TestingAndCertificationSystem.QuestionAnswer>
+
+@{
+    List<Question> questions = ViewBag.questions;
+    UserIdentity user = ViewBag.user;
+    TestResults result = ViewBag.results;
+
+    var i = 0;
+}
+
+<h2 class="text-gradient-orange2">Test attempt information</h2>
+<br />
+<div class="card border-orange2">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-4 border-right">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item"><b>Attempt start: </b>@ViewBag.regStart</li>
+                    <li class="list-group-item"><b>Submitted: </b>@ViewBag.regEnd</li>
+                    <li class="list-group-item">@ViewBag.pointsMark points
+                        @if (ViewBag.DeletedQuestionsMessage == null)
+                        {
+                            <span>&nbsp;from @ViewBag.pointsTotal</span>
+                        }
+                    </li>
+                    <li class="list-group-item">
+                        @if (result.IsPassed == true)
+                        {
+                            <div class="alert alert-success" style="line-height: 30px; padding: 0px 15px;">
+                                <b>Scored </b>@result.FinalMarkInPercents%<b> from required </b>@ViewBag.requiredMark%
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="alert alert-danger" style="line-height: 30px; padding: 0px 15px;">
+                                <b>Scored </b>@result.FinalMarkInPercents%<b> from required </b>@ViewBag.requiredMark%
+                            </div>
+                        }
+                    </li>
+                </ul>
+            </div>
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-body">
+                        <p class="text-gradient-orange2" style="font-size: x-large; font-weight: bold">@user.FirstName&nbsp;@user.LastName&nbsp;<i class="far fa-user"></i></p>
+                        <small class="text-muted">@user.City</small>
+                        <br />
+                        <br />
+                        <table class="table table-borderless table-sm">
+                            <tbody>
+                                <tr>
+                                    <td style="width: 1%; white-space: nowrap"><i class="fas fa-envelope orange2"></i></td>
+                                    <td>@user.Email</td>
+                                </tr>
+                                <tr>
+                                    <td style="width: 1%; white-space: nowrap"><i class="fas fa-phone orange2"></i></td>
+                                    <td>@user.Phone</td>
+                                </tr>
+                                <tr>
+                                    <td style="width: 1%; white-space: nowrap"><i class="fas fa-file-alt orange2"></i></td>
+                                    <td>@user.Description</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                    
+            </div>
+        </div>
+    </div>
+</div>
+<br />
+
+<div class="col-md-10">
+    @if (ViewBag.DeletedQuestionsMessage != null)
+    {
+        <div class="alert alert-danger" role="alert">
+            <div style="font-weight:600">@ViewBag.DeletedQuestionsMessage</div>
+        </div>
+    }
+</div>
+
+
+
+    @foreach (var question in questions)
+    {
+        var q = Model.Where(x => x.QuestionId == question.Id);
+
+        @if (q.Count() != 0)
+        {
+            var mark = q.Sum(x => x.Choice.Points);
+            i++;
+
+            <div class="col-md-10">
+                <div class="card border-orange2">
+                    <div class="row">
+                        <div class="col-md-4 border-right" style="width: 200px; max-width: 200px;">
+                            <div class="card-body">
+                                <label class="font-weight-bold text-gradient-orange2" style="font-size:22px">Question @i</label>
+                                <p class="card-text"><small class="text-muted">Scored @mark from 1</small></p>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="card-body">
+                                <h5 class="card-title">@question.Text</h5>
+                                <p class="card-text">
+                                    @foreach (var choice in question.Choice)
+                                    {
+                                        var u = Model.Where(x => x.ChoiceId == choice.Id).FirstOrDefault();
+
+                                        if (u != null)
+                                        {
+                                            <input type="checkbox" checked="checked" disabled="disabled" />
+                                        }
+                                        else
+                                        {
+                                            <input type="checkbox" disabled="disabled" />
+                                        }
+
+                                        if (choice.Points == 0)
+                                        {
+                                            <label class="font-weight-normal text-danger">@choice.Text </label>
+                                        }
+                                        else
+                                        {
+                                            <label class="fst-normal text-success">@choice.Text </label>
+                                        }
+                                        <br />
+                                    }
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+        <br />
+    }

@@ -418,9 +418,32 @@ namespace TestingAndCertificationSystem.Controllers
 
                     if (registration != null)
                     {
-                        return RedirectToAction("Test", new { token = registration.Token });
+                        TestResults results = _context.TestResults.Where(x => x.RegistrationId == registration.Id).FirstOrDefault();
+
+                        //registrated & not submited = current registration
+                        if(results == null)
+                        {
+                            return RedirectToAction("Test", new { token = registration.Token, qNum = 1 });
+                        }
+
+                        //registrated & submited = new registration
+
+                        Registration newRegistration = new Registration()
+                        {
+                            UserId = currentUser.Id,
+                            TestId = testId,
+                            Token = Guid.NewGuid(),
+                            EntryTime = DateTime.Now,
+                            EndingTime = DateTime.Now.AddMinutes(currentTest.DurationInMinutes)
+                        };
+
+                        _context.Registration.Add(newRegistration);
+
+                        await _context.SaveChangesAsync();
+
+                        return RedirectToAction("Test", new { token = newRegistration.Token, qNum = 1 });
                     }
-                    else
+                    else //not registrated
                     {
                         Registration newRegistration = new Registration()
                         {
@@ -471,40 +494,40 @@ namespace TestingAndCertificationSystem.Controllers
                     testResults = _context.TestResults.Where(x => x.RegistrationId == _context.Registration.Where(x => x.Token == token).FirstOrDefault().Id).FirstOrDefault();
                 }
 
-                //searching if question is already submitted
-                /*if(_context.QuestionAnswer.Where(x => x.RegistrationId == registration.Id && x.QuestionId == model.Question.Id).Count() != 0)
+                var questionAnswer = _context.QuestionAnswer.Where(x => x.RegistrationId == registration.Id && x.QuestionId == model.Question.Id).FirstOrDefault();
+
+                //if not answered already
+                if (questionAnswer == null)
                 {
-                    //question submitted
-                    return RedirectToAction("Test", new { token = token, qNum = qNum });
-                }*/
+                    var userAnswers = model.Choices.Where(x => x.IsChecked == true).ToList();
 
-                var userAnswers = model.Choices.Where(x => x.IsChecked == true).ToList();
-
-                if(userAnswers.Count != 0)
-                {
-                    List<QuestionAnswer> listQA = new List<QuestionAnswer>();
-
-                    userAnswers.ForEach(x => x.Choice.Points = _context.Choice.Where(y => y.Id == x.Choice.Id).FirstOrDefault().Points); //sets mark
-
-                    float mark = (float)userAnswers.Sum(x => x.Choice.Points); //calculates total mark for all correct answers
-
-                    foreach (var choice in userAnswers)
+                    if (userAnswers.Count != 0)
                     {
-                        QuestionAnswer qa = new QuestionAnswer();
+                        List<QuestionAnswer> listQA = new List<QuestionAnswer>();
 
-                        qa.RegistrationId = _context.Registration.Where(x => x.Token == token).FirstOrDefault().Id;
-                        qa.QuestionId = model.Question.Id;
-                        qa.ChoiceId = choice.Choice.Id;
-                        qa.TotalMark = mark;
-                        qa.TestResultId = testResults.Id;
+                        userAnswers.ForEach(x => x.Choice.Points = _context.Choice.Where(y => y.Id == x.Choice.Id).FirstOrDefault().Points); //sets mark
 
-                        listQA.Add(qa);
+                        float mark = (float)userAnswers.Sum(x => x.Choice.Points); //calculates total mark for all correct answers
+
+                        foreach (var choice in userAnswers)
+                        {
+                            QuestionAnswer qa = new QuestionAnswer();
+
+                            qa.RegistrationId = _context.Registration.Where(x => x.Token == token).FirstOrDefault().Id;
+                            qa.QuestionId = model.Question.Id;
+                            qa.ChoiceId = choice.Choice.Id;
+                            qa.TotalMark = mark;
+                            qa.TestResultId = testResults.Id;
+
+                            listQA.Add(qa);
+                        }
+
+                        _context.QuestionAnswer.AddRange(listQA);
+
+                        await _context.SaveChangesAsync();
                     }
-
-                    _context.QuestionAnswer.AddRange(listQA);
-
-                    await _context.SaveChangesAsync();
                 }
+
 
                 if (qNum == 0)
                     qNum = 1;
@@ -574,7 +597,7 @@ namespace TestingAndCertificationSystem.Controllers
                 IEnumerable<QuestionAnswer> userResults = _context.QuestionAnswer.Where(x => x.TestResultId == testResult.Id); //user's answers
 
                 //user`s scored mark in percents
-                var userMark = userResults.GroupBy(x => x.QuestionId).Select(y => y.First()).Sum(x => x.TotalMark) / (totalQuestionCount) * 100;
+                var userMark = (int)(userResults.GroupBy(x => x.QuestionId).Select(y => y.First()).Sum(x => x.TotalMark) / (totalQuestionCount) * 100);
                 
                 testResult.FinalMarkInPercents = userMark;
 
@@ -590,8 +613,7 @@ namespace TestingAndCertificationSystem.Controllers
 
                         SendAdditionalTask(additionalTask, currentUser.Email);
                     }
-                }
-                    
+                }           
                 else
                     testResult.IsPassed = false;
 
@@ -609,6 +631,75 @@ namespace TestingAndCertificationSystem.Controllers
         private void SendAdditionalTask(AdditionalTask additionalTask, string recepientEmail)
         {
                 
+        }
+
+
+        #endregion
+
+        #region assignment results
+
+        public async Task<IActionResult> TestAttempts(int testId)
+        {
+            var testAttempts = _context.Registration.Where(x => x.TestId == testId).ToList();
+
+            var users = _userManager.Users.Where(x => testAttempts.Select(x => x.UserId).Any(z => z == x.Id)).ToList();
+            var results = _context.TestResults.Where(x => testAttempts.Select(x => x.Id).Any(z => z == x.RegistrationId)).ToList();
+
+            ViewBag.Users = users;
+            ViewBag.Results = results;
+
+            return View(testAttempts);
+        }
+
+        public IActionResult AttemptInfopage(int registrationId)
+        {
+            Registration registration = _context.Registration.Find(registrationId);
+
+            TestResults testResults = _context.TestResults.Where(x => x.RegistrationId == registration.Id).FirstOrDefault();
+
+            UserIdentity user = _userManager.Users.Where(x => x.Id == registration.UserId).FirstOrDefault();
+
+            var questionAnswers = _context.QuestionAnswer.Where(x => x.RegistrationId == registration.Id).ToList();
+
+            if(questionAnswers.Where(x => x.QuestionId == null).Count() != 0)
+            {
+                ViewBag.DeletedQuestionsMessage = "Some questions in this test have been removed, but they still have an effect on the test results";
+            }
+
+            //questions in original test
+            var testQuestions = _context.Question.Where(x => x.TestId == registration.TestId).ToList();
+
+            if(testQuestions != null)
+            {
+                foreach (var question in testQuestions)
+                {
+                    question.Choice = _context.Choice.Where(x => x.QuestionId == question.Id).ToList();
+                }
+            }
+
+            ViewBag.questions = testQuestions;
+            ViewBag.regStart = registration.EntryTime;
+            ViewBag.regEnd = registration.EndingTime;
+            ViewBag.results = testResults;
+            ViewBag.user = user;
+            ViewBag.requiredMark = _context.Test.Where(x => x.Id == registration.TestId).FirstOrDefault().PassingMarkInPercents;
+            ViewBag.pointsMark = questionAnswers.GroupBy(x => x.QuestionId).Select(y => y.First()).Sum(x => x.TotalMark);
+            ViewBag.pointsTotal = questionAnswers.GroupBy(x => x.QuestionId).Select(y => y.First()).Count();
+
+            return View(questionAnswers);
+        }
+
+        public async Task<IActionResult>  UserAttempts()
+        {
+            UserIdentity currentUser = await _userManager.GetUserAsync(User);
+
+            var userRegistrations = _context.Registration.Where(x => x.UserId == currentUser.Id).ToList();
+
+            var userTestResultss = _context.TestResults.Where(x => userRegistrations.Select(x => x.Id).Any(y => y == x.RegistrationId)).ToList();
+
+            ViewBag.registrations = userRegistrations;
+
+            return View(userTestResultss);
         }
 
 
