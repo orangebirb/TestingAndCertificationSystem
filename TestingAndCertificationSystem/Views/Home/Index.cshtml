@@ -1,16 +1,18 @@
-﻿@{
+﻿@using TestingAndCertificationSystem.Resources
+
+@{
     ViewData["Title"] = "Home Page";
 }
 
-@if (User.IsInRole("CompanyAdmin"))
+@if (User.IsInRole(Roles.CompanyAdmin))
 {
     <p>Admin of company</p>
 }
-@if (User.IsInRole("CompanyModerator"))
+@if (User.IsInRole(Roles.CompanyModerator))
 {
     <p>Moderator of company</p>
 }
-@if (User.IsInRole("User"))
+@if (User.IsInRole(Roles.User))
 {
     <p>User</p>
 }

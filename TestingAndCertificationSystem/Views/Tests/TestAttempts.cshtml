@@ -45,7 +45,6 @@ else
                 {
                     var result = results.Where(x => x.RegistrationId == attempt.Id).FirstOrDefault();
 
-
                     @if (result != null)
                     {
                         <td>
@@ -66,18 +65,20 @@ else
                         <td>
                             @result.FinalMarkInPercents%
                         </td>
+
+                        <td>
+                            <form asp-controller="Tests" asp-action="AttemptInfopage" asp-route-registrationId="@attempt.Id">
+                                <button type="submit" class="btn btn-sm btn-success"> Details </button>
+                            </form>
+                        </td>
                     }
                     else
                     {
-                        <td>Failed to load data</td>
+                        <td>User left test without submitting</td>
                         <td></td>
                     }
 
-                    <td>
-                        <form asp-controller="Tests" asp-action="AttemptInfopage" asp-route-registrationId="@attempt.Id">
-                            <button type="submit" class="btn btn-sm btn-success"> Details </button>
-                        </form>
-                    </td>
+
                 }
             </tr>
         }

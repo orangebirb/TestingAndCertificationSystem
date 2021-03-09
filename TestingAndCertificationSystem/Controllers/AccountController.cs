@@ -48,7 +48,7 @@ namespace TestingAndCertificationSystem.Controllers
 
                 // creation new user
                 var result = await _userManager.CreateAsync(user, model.Password);
-                
+
                 if (result.Succeeded)
                 {
                     //adding role

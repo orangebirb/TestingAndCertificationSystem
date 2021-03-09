@@ -9,9 +9,10 @@
         qNum = Context.Request.Query["qNum"];
     }
 
-    var timeRemaining = (DateTime)ViewBag.EndTime - (DateTime.Now);
+    var testExpireTime = ((DateTime)ViewBag.EndTime);
 }
 
+<h2>@testExpireTime</h2>
 @if (ViewBag.ErrorMessage != null)
 {
     <div class="alert alert-danger" role="alert">
@@ -19,7 +20,7 @@
     </div>
 }
 
-@timeRemaining
+<div>Time remaining: <span id="timer"></span></div>
 
 <div class="row">
     <div class="col-md-12">
@@ -95,4 +96,27 @@
     }
 </script>
 
-<br />
+<script>
+
+    var time = setInterval(function () {
+
+        var timeRemaining = new Date("@testExpireTime").getTime() - new Date().getTime();;
+
+        // Time calculations for days, hours, minutes and seconds
+        var hours = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        var minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
+        var seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
+
+        // Display the result in the element with id="demo"
+        document.getElementById("timer").innerHTML = hours + " h "
+            + minutes + " min " + seconds + " sec";
+
+        // If the count down is finished, write some text
+        if (timeRemaining < 0) {
+            clearInterval(time);
+            document.getElementById("timer").innerHTML = "EXPIRED";
+            alert("time expired");
+            window.location.href = "@Url.Action("TestResults", new { token = Context.Request.Query["token"]})";
+        }
+    }, 1000);
+</script>

@@ -1,4 +1,6 @@
-﻿@model TestingAndCertificationSystem.Test
+﻿@using TestingAndCertificationSystem.Resources
+
+@model TestingAndCertificationSystem.Test
 
 @{
     var testid = Context.Request.Query["testId"];
@@ -7,7 +9,7 @@
 <div class="container">
     <div class="row">
         <div class="col-md-6">
-            <h2>@Model.Name @Model.Id</h2>
+            <h2>@Model.Name</h2>
             @Model.Description
         </div>
         <div class="col-md-6">
@@ -56,7 +58,7 @@
             <br />
             @if (User.Identity.IsAuthenticated)
             {
-                @if (!User.IsInRole("CompanyAdmin"))
+                @if (!User.IsInRole(Roles.CompanyAdmin))
                 {
                     <form asp-controller="Tests" asp-action="Registration" asp-route-testId="@testid">
                         <button type="submit" class="btn btn-sm btn-info">Start test</button>

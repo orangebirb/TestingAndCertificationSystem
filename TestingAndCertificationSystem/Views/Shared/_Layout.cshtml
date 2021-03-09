@@ -1,4 +1,6 @@
-﻿<!DOCTYPE html>
+﻿@using TestingAndCertificationSystem.Resources;
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -25,7 +27,7 @@
                     {
                         <ul class="nav navbar-nav flex-grow-1">
 
-                            @if (User.IsInRole("CompanyAdmin"))
+                            @if (User.IsInRole(Roles.CompanyAdmin))
                             {
                                 <li class="nav-item dropdown">
                                     <a class="nav-link text-dark" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -40,7 +42,7 @@
                                 </li>
                             }
 
-                            @if (User.IsInRole("CompanyAdmin") || User.IsInRole("CompanyModerator"))
+                            @if (User.IsInRole(Roles.CompanyAdmin) || User.IsInRole(Roles.CompanyModerator))
                             {
                                 <li class="nav-item dropdown">
                                     <a class="nav-link text-dark" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -53,7 +55,7 @@
                                 </li>
                             }
 
-                             @if (User.IsInRole("User"))
+                            @if (User.IsInRole(Roles.User))
                             {
                                 <li class="nav-item dropdown">
                                     <a class="nav-link text-dark" asp-controller="Tests" asp-action="UserAttempts">

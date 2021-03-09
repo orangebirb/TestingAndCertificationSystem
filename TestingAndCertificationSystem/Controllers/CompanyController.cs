@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TestingAndCertificationSystem.Models;
+using TestingAndCertificationSystem.Resources;
 
 namespace TestingAndCertificationSystem.Controllers
 {
@@ -28,22 +29,22 @@ namespace TestingAndCertificationSystem.Controllers
             UserIdentity currentUser = await _userManager.GetUserAsync(User);
             int adminCompanyId = currentUser.CompanyId; // current user's (admin's) company id
 
-            var moderators = _userManager.GetUsersInRoleAsync("CompanyModerator").Result.Where(x => x.CompanyId == adminCompanyId);
+            var moderators = _userManager.GetUsersInRoleAsync(Roles.CompanyModerator).Result.Where(x => x.CompanyId == adminCompanyId);
 
             return View(moderators);
-        } 
+        }
 
         [HttpGet]
         public IActionResult SearchModerators(string userSearch)
         {
-            if(string.IsNullOrEmpty(userSearch) || string.IsNullOrWhiteSpace(userSearch))
+            if (string.IsNullOrEmpty(userSearch) || string.IsNullOrWhiteSpace(userSearch))
             {
-                return View(_userManager.GetUsersInRoleAsync("User").Result);
+                return View(_userManager.GetUsersInRoleAsync(Roles.User).Result);
             }
 
             ViewData["userDetails"] = userSearch;
 
-            var usersSearchResult = _userManager.GetUsersInRoleAsync("User").Result.Where(x => x.Email.Contains(userSearch) 
+            var usersSearchResult = _userManager.GetUsersInRoleAsync(Roles.User).Result.Where(x => x.Email.Contains(userSearch)
                 || x.FirstName.Contains(userSearch) || x.LastName.Contains(userSearch));
 
             return View(usersSearchResult);
@@ -77,7 +78,7 @@ namespace TestingAndCertificationSystem.Controllers
             //adding new user to role
             var addingUserToRole = await _userManager.AddToRoleAsync(user, "CompanyModerator");
 
-            if(UserResult.Succeeded)
+            if (UserResult.Succeeded)
             {
                 return RedirectToAction("Moderators");
             }
@@ -133,7 +134,7 @@ namespace TestingAndCertificationSystem.Controllers
                     }
                 }
             }
-            
+
             return View();
         }
 
