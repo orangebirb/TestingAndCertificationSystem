@@ -52,6 +52,13 @@
                             }
                             else
                             {
+                                @if (TempData["ErrorMessage"] != null)
+                                {
+                                    <div class="alert alert-danger" role="alert">
+                                        @TempData["ErrorMessage"]
+                                    </div>
+                                }
+
                                 <form asp-controller="Tests" asp-action="ChangeActivityStatusTest" asp-route-testId="@Model.Id" method="post">
                                     <div class="row">
                                         <div>

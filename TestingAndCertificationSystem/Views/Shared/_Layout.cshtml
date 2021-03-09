@@ -55,7 +55,7 @@
                                 </li>
                             }
 
-                            @if (User.IsInRole(Roles.User))
+                            @if (User.IsInRole(Roles.User) || User.IsInRole(Roles.CompanyModerator))
                             {
                                 <li class="nav-item dropdown">
                                     <a class="nav-link text-dark" asp-controller="Tests" asp-action="UserAttempts">

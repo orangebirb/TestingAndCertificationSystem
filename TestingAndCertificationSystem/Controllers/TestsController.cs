@@ -11,9 +11,11 @@ using TestingAndCertificationSystem.ViewModels;
 using TestingAndCertificationSystem.Controllers;
 using MimeKit;
 using TestingAndCertificationSystem.Resources;
+using Microsoft.AspNetCore.Authorization;
 
 namespace TestingAndCertificationSystem.Controllers
 {
+    [Authorize]
     public class TestsController : Controller
     {
         private readonly UserManager<UserIdentity> _userManager;
@@ -26,7 +28,7 @@ namespace TestingAndCertificationSystem.Controllers
 
         #region test management
 
-        [HttpGet]
+        [Authorize(Roles = Roles.CompanyAdmin + ", " + Roles.CompanyModerator)]
         public async Task<IActionResult> Tests()
         {
             //list of all additional tasks
@@ -55,12 +57,13 @@ namespace TestingAndCertificationSystem.Controllers
             return View(tests.ToList());
         }
 
-        [HttpGet]
+        [Authorize(Roles = Roles.CompanyAdmin + ", " + Roles.CompanyModerator)]
         public IActionResult CreateTest()
         {
             return View();
         }
 
+        [Authorize(Roles = Roles.CompanyAdmin + ", " + Roles.CompanyModerator)]
         [HttpPost]
         public async Task<IActionResult> CreateTest(TestViewModel model)
         {
@@ -89,7 +92,7 @@ namespace TestingAndCertificationSystem.Controllers
             return View();
         }
 
-        [HttpGet]
+        [Authorize(Roles = Roles.CompanyAdmin + ", " + Roles.CompanyModerator)]
         public async Task<IActionResult> EditTest(int testId)
         {
             Test testToEdit = _context.Test.Find(testId);
@@ -97,6 +100,7 @@ namespace TestingAndCertificationSystem.Controllers
             return View(testToEdit);
         }
 
+        [Authorize(Roles = Roles.CompanyAdmin + ", " + Roles.CompanyModerator)]
         [HttpPost]
         public async Task<IActionResult> EditTest(Test test)
         {
@@ -119,6 +123,7 @@ namespace TestingAndCertificationSystem.Controllers
             return View();
         }
 
+        [Authorize(Roles = Roles.CompanyAdmin + ", " + Roles.CompanyModerator)]
         [HttpPost]
         public async Task<IActionResult> DeleteTest(int testId)
         {
@@ -145,6 +150,7 @@ namespace TestingAndCertificationSystem.Controllers
             return RedirectToAction("Tests");
         }
 
+        [Authorize(Roles = Roles.CompanyAdmin + ", " + Roles.CompanyModerator)]
         [HttpPost]
         public async Task<IActionResult> ChangeActivityStatusTest(int testId, DateTime endingDateTime)
         {
@@ -166,6 +172,10 @@ namespace TestingAndCertificationSystem.Controllers
 
                         testToEdit.IsActive = true;
                     }
+                    else
+                    {
+                        TempData["ErrorMessage"] = "Choose correct date";
+                    }
                 }
 
                 await _context.SaveChangesAsync();
@@ -174,6 +184,7 @@ namespace TestingAndCertificationSystem.Controllers
             return RedirectToAction("TestInfopage", new { testId });
         }
 
+        [Authorize(Roles = Roles.CompanyAdmin + ", " + Roles.CompanyModerator)]
         public IActionResult TestInfopage(int testId)
         {
             Test test = _context.Test.Find(testId);
@@ -198,6 +209,7 @@ namespace TestingAndCertificationSystem.Controllers
             return RedirectToAction("Error");
         }
 
+        [AllowAnonymous]
         public async Task<IActionResult> Instruction(int testId)
         {
             Test test = _context.Test.Find(testId);
@@ -228,12 +240,13 @@ namespace TestingAndCertificationSystem.Controllers
 
         #region questions management
 
-        [HttpGet]
+        [Authorize(Roles = Roles.CompanyAdmin + ", " + Roles.CompanyModerator)]
         public IActionResult CreateQuestion()
         {
             return View();
         }
 
+        [Authorize(Roles = Roles.CompanyAdmin + ", " + Roles.CompanyModerator)]
         [HttpPost]
         public async Task<IActionResult> CreateQuestion(QuestionDataModel model, int testId)
         {
@@ -282,6 +295,7 @@ namespace TestingAndCertificationSystem.Controllers
             return View();
         }
 
+        [Authorize(Roles = Roles.CompanyAdmin + ", " + Roles.CompanyModerator)]
         [HttpPost]
         public async Task<IActionResult> DeleteQuestion(int questionId, int testId)
         {
@@ -304,12 +318,13 @@ namespace TestingAndCertificationSystem.Controllers
 
         #region additional task management
 
-        [HttpGet]
+        [Authorize(Roles = Roles.CompanyAdmin + ", " + Roles.CompanyModerator)]
         public IActionResult CreateAdditionalTask(int testId)
         {
             return View();
         }
 
+        [Authorize(Roles = Roles.CompanyAdmin + ", " + Roles.CompanyModerator)]
         [HttpPost]
         public async Task<IActionResult> CreateAdditionalTask(AdditionalTaskViewModel model, int testId)
         {
@@ -348,14 +363,17 @@ namespace TestingAndCertificationSystem.Controllers
             return View();
         }
 
-        [HttpGet]
+        [Authorize(Roles = Roles.CompanyAdmin + ", " + Roles.CompanyModerator)]
         public async Task<IActionResult> EditAdditionalTask(int taskId)
         {
-            AdditionalTask taskToEdit = _context.AdditionalTask.Find(taskId);
+            AdditionalTask taskToEdit = await _context.AdditionalTask.FindAsync(taskId);
+
+            TempData["testId"] = _context.Test.Where(x => x.AdditionalTaskId == taskToEdit.Id).FirstOrDefault().Id;
 
             return View(taskToEdit);
         }
 
+        [Authorize(Roles = Roles.CompanyAdmin + ", " + Roles.CompanyModerator)]
         [HttpPost]
         public async Task<IActionResult> EditAdditionalTask(AdditionalTask additionalTask)
         {
@@ -369,9 +387,11 @@ namespace TestingAndCertificationSystem.Controllers
 
             ViewBag.successMessage = "Changes saved";
 
+            TempData["testId"] = _context.Test.Where(x => x.AdditionalTaskId == taskToEdit.Id).FirstOrDefault().Id;
             return View();
         }
 
+        [Authorize(Roles = Roles.CompanyAdmin + ", " + Roles.CompanyModerator)]
         [HttpPost]
         public async Task<IActionResult> DeleteAdditionalTask(int taskId, int testId)
         {
@@ -391,6 +411,7 @@ namespace TestingAndCertificationSystem.Controllers
 
         #region user test management
 
+        [Authorize(Roles = Roles.User + ", " + Roles.CompanyModerator)]
         [HttpPost]
         public async Task<IActionResult> Registration(int testId)
         {
@@ -457,11 +478,18 @@ namespace TestingAndCertificationSystem.Controllers
             return View("Error");
         }
 
+        [Authorize(Roles = Roles.User + ", " + Roles.CompanyModerator)]
         [HttpPost]
         public async Task<IActionResult> SubmitAnswer(QuestionDataModel model, Guid token, int qNum)
         {
             if (model != null)
             {
+                if (model.Choices.All(x => x.IsChecked == false))
+                {
+                    TempData["ErrorMessage"] = "You did not choose an answer";
+                    return RedirectToAction("Test", new { token = token, qNum = qNum });
+                }
+
                 TestResults testResults;
                 var registration = _context.Registration.Where(x => x.Token == token).FirstOrDefault();
 
@@ -534,12 +562,17 @@ namespace TestingAndCertificationSystem.Controllers
             return View("Error");
         }
 
-        [HttpGet]
-        public async Task<IActionResult> Test(Guid token, int qNum)
+        [Authorize(Roles = Roles.User + ", " + Roles.CompanyModerator)]
+        public IActionResult Test(Guid token, int qNum)
         {
             if (token != null)
             {
                 var registration = _context.Registration.Where(x => x.Token == token).FirstOrDefault();
+
+                ViewBag.QuestionCount = _context.Question.Where(x => x.TestId == registration.TestId).Count();
+
+                var testAuthor = _context.Test.Where(x => x.Id == registration.TestId).FirstOrDefault().TestAuthorId;
+                ViewBag.TestAuthorEmail = _userManager.Users.Where(x => x.Id == testAuthor).FirstOrDefault().Email;
 
                 if (registration != null)
                 {
@@ -572,6 +605,7 @@ namespace TestingAndCertificationSystem.Controllers
             return View("Error");
         }
 
+        [Authorize(Roles = Roles.User + ", " + Roles.CompanyModerator)]
         public async Task<IActionResult> TestResults(Guid token)
         {
             var registration = _context.Registration.Where(x => x.Token == token).FirstOrDefault();
@@ -620,14 +654,14 @@ namespace TestingAndCertificationSystem.Controllers
 
         private void SendAdditionalTask(AdditionalTask additionalTask, string recepientEmail)
         {
-
+        
         }
-
 
         #endregion
 
         #region assignment results
 
+        [Authorize(Roles = Roles.CompanyAdmin + ", " + Roles.CompanyModerator)]
         public async Task<IActionResult> TestAttempts(int testId)
         {
             var testAttempts = _context.Registration.Where(x => x.TestId == testId).ToList();
@@ -641,6 +675,7 @@ namespace TestingAndCertificationSystem.Controllers
             return View(testAttempts);
         }
 
+        [Authorize(Roles = Roles.CompanyAdmin + ", " + Roles.CompanyModerator)]
         public IActionResult AttemptInfopage(int registrationId)
         {
             Registration registration = _context.Registration.Find(registrationId);
@@ -679,6 +714,7 @@ namespace TestingAndCertificationSystem.Controllers
             return View(questionAnswers);
         }
 
+        [Authorize(Roles = Roles.User + ", " + Roles.CompanyModerator)]
         public async Task<IActionResult> UserAttempts()
         {
             UserIdentity currentUser = await _userManager.GetUserAsync(User);

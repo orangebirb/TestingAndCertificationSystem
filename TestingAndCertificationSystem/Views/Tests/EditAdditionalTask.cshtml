@@ -9,6 +9,7 @@
         @ViewBag.successMessage
     </div>
 }
+<a class="arrow" asp-controller="Tests" asp-action="TestInfopage" asp-route-testId="@TempData["testId"]">Return to test</a>
 
 <form asp-action="EditAdditionalTask" asp-controller="Tests">
     <div asp-validation-summary="All" class="alert-danger"></div>
