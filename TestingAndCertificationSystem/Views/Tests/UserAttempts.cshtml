@@ -1,4 +1,5 @@
-﻿@model List<TestingAndCertificationSystem.TestResults>
+﻿@using TestingAndCertificationSystem.Resources;
+@model PaginationGeneric<TestResults>
 
 @{
     List<TestingAndCertificationSystem.Registration> registrations = ViewBag.registrations;
@@ -8,8 +9,7 @@
     <h2>Your tests attempts</h2>
 </div>
 
-
-@if (Model.Count() == 0)
+@if (Model.source.Count() == 0)
 {
     <div class="col-md-10">
         <div class="alert alert-info" role="alert">
@@ -23,14 +23,14 @@ else
         <tr>
             <th>Test</th>
             <th>Start time</th>
-            <th>Mark</th>
+            <th><a asp-action="UserAttempts" asp-route-sortOrder="@ViewBag.MarkSortParm">Mark</a></th>
             <th>Is passed</th>
             <th></th>
         </tr>
-        @foreach (var attempt in Model)
+        @foreach (var attempt in Model.source)
         {
             var registration = registrations.Where(x => x.Id == attempt.RegistrationId).FirstOrDefault();
-
+            
             <tr>
                 <td>
                     <form asp-controller="Tests" asp-action="Instruction" asp-route-testId="@registration.TestId" method="post">
@@ -42,7 +42,7 @@ else
                 </td>
                 <td>
                     @attempt.FinalMarkInPercents
-                </td>
+                </td> 
                 <td>
                     @if (attempt.IsPassed == true)
                     {
@@ -60,4 +60,19 @@ else
             </tr>
         }
     </table>
+
+    var previousDisabled = !Model.pagination.HasPreviousPage ? "disabled" : "";
+    var nextDisabled = !Model.pagination.HasNextPage ? "disabled" : "";
+
+    <a asp-action="UserAttempts"
+        asp-route-page="@(Model.pagination.PageNum - 1)"
+        class="btn btn-default @previousDisabled">
+        Previous
+    </a>
+    <a asp-action="UserAttempts"
+        asp-route-page="@(Model.pagination.PageNum + 1)"
+        class="btn btn-default @nextDisabled">
+        Next
+    </a>
+    
 }

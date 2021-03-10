@@ -12,6 +12,7 @@ using TestingAndCertificationSystem.Controllers;
 using MimeKit;
 using TestingAndCertificationSystem.Resources;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore;
 
 namespace TestingAndCertificationSystem.Controllers
 {
@@ -715,17 +716,39 @@ namespace TestingAndCertificationSystem.Controllers
         }
 
         [Authorize(Roles = Roles.User + ", " + Roles.CompanyModerator)]
-        public async Task<IActionResult> UserAttempts()
+        public async Task<IActionResult> UserAttempts(SortingOrders sortOrder, int page = 1)
         {
+            int pageSize = 10;
+
+            ViewData["MarkSortParm"] = sortOrder == SortingOrders.MarkAsc ? SortingOrders.MarkDesc : SortingOrders.MarkAsc;
+
             UserIdentity currentUser = await _userManager.GetUserAsync(User);
 
             var userRegistrations = _context.Registration.Where(x => x.UserId == currentUser.Id).ToList();
 
-            var userTestResultss = _context.TestResults.Where(x => userRegistrations.Select(x => x.Id).Any(y => y == x.RegistrationId)).ToList();
+            IQueryable<TestResults> userTestResults = _context.TestResults.Where(x => userRegistrations.Select(x => x.Id).Any(y => y == x.RegistrationId));
+
+            userTestResults = sortOrder switch
+            {
+                SortingOrders.MarkAsc => userTestResults.OrderBy(x => x.FinalMarkInPercents),
+                SortingOrders.MarkDesc => userTestResults.OrderByDescending(x => x.FinalMarkInPercents)
+            };
+
+            var count = await userTestResults.CountAsync();
+            var items = await userTestResults.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
+
+            Pagination pagination = new Pagination(count, page, pageSize);
+            PaginationGeneric<TestResults> paginationTestAttempts = new PaginationGeneric<TestResults>
+            {
+                pagination = pagination,
+                source = items
+            };
 
             ViewBag.registrations = userRegistrations;
 
-            return View(userTestResultss);
+            return View(paginationTestAttempts);
+
+            
         }
 
 
