@@ -27,14 +27,43 @@ namespace TestingAndCertificationSystem.Controllers
             _userManager = userManager;
         }
 
-        public async Task<IActionResult> Moderators()
+        public async Task<IActionResult> Moderators(SortingOrders sortOrder, int page = 1)
         {
+            int pageSize = 10;
+
+            ViewData["CurrentSort"] = sortOrder;
+
+            ViewData["NameSortParm"] = sortOrder == SortingOrders.NameAsc ? SortingOrders.NameDesc : SortingOrders.NameAsc;
+            ViewData["CitySortParm"] = sortOrder == SortingOrders.CityAsc ? SortingOrders.CityDesc : SortingOrders.CityAsc;
+
             UserIdentity currentUser = await _userManager.GetUserAsync(User);
             int adminCompanyId = currentUser.CompanyId; // current user's (admin's) company id
 
             var moderators = _userManager.GetUsersInRoleAsync(Roles.CompanyModerator).Result.Where(x => x.CompanyId == adminCompanyId);
 
-            return View(moderators);
+            moderators = sortOrder switch
+            {
+                SortingOrders.CityAsc => moderators.OrderBy(x => x.City),
+                SortingOrders.CityDesc => moderators.OrderByDescending(x => x.City),
+                SortingOrders.NameAsc => moderators.OrderBy(x => x.FirstName),
+                SortingOrders.NameDesc => moderators.OrderByDescending(x => x.FirstName),
+                _ => moderators
+            };
+
+            var count = moderators.Count();
+            var items = moderators.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+
+            Pagination pagination = new Pagination(count, page, pageSize);
+            PaginationGeneric<UserIdentity> paginationModerators = new PaginationGeneric<UserIdentity>
+            {
+                pagination = pagination,
+                source = items
+            };
+
+            ViewBag.Page = page;
+            ViewBag.PageCount = count / pageSize + 1;
+
+            return View(paginationModerators);
         }
 
         [HttpGet]

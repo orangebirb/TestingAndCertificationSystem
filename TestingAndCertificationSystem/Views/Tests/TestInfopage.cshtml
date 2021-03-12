@@ -28,6 +28,9 @@
                 </form>
 
                 <a class="btn btn-success" asp-area="" asp-controller="Tests" asp-action="EditTest" asp-route-testId="@Model.Id">Edit test</a>
+                <form asp-controller="Tests" asp-action="DeleteTest" asp-route-testId="@Model.Id" method="post">
+                    <button type="submit" class="btn btn-sm btn-danger"> Delete test </button>
+                </form>
 
                 <ul class="list-group list-group-flush">
                     <li class="list-group-item">@Model.Description</li>

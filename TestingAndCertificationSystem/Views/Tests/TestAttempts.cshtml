@@ -1,4 +1,5 @@
-﻿@model List<TestingAndCertificationSystem.Registration>
+﻿@using TestingAndCertificationSystem.Resources;
+@model PaginationGeneric<Registration>
 
 @{
     List<UserIdentity> users = ViewBag.users;
@@ -6,11 +7,18 @@
 }
 
 <div class="col-md-10">
-    <h2>Tests attempts</h2>
+    <h2 class="text-gradient-orange2">"@ViewBag.TestName" test attempts</h2>
+    &nbsp;&nbsp;&nbsp;&nbsp;
+    <i class="fas fa-caret-left orange1"></i>
+    <a class="btn-link orange1" asp-controller="Tests" asp-action="Tests">
+        Back to tests
+    </a>
+    <br />
+    <br />
 </div>
 
 
-@if (Model.Count() == 0)
+@if (Model.source.Count() == 0)
 {
     <div class="col-md-10">
         <div class="alert alert-info" role="alert">
@@ -22,20 +30,32 @@ else
 {
     <table class="table">
         <tr>
-            <th>User</th>
-            <th>Start time</th>
-            <th>Status</th>
-            <th>Mark</th>
+            <th class="text-gradient-orange1">User</th>
+            <th class="text-gradient-orange2">
+                <a asp-action="TestAttempts" asp-route-testId="@Model.source.FirstOrDefault().TestId" 
+                   asp-route-sortOrder="@ViewBag.DateSortParm">Entry time</a>
+            </th>
+            <th class="text-gradient-orange2">
+                <a asp-action="TestAttempts" asp-route-testId="@Model.source.FirstOrDefault().TestId"
+                   asp-route-sortOrder="@ViewBag.PassSortParm">Status</a>
+            </th>
+            <th class="text-gradient-orange2">
+                <a asp-action="TestAttempts" asp-route-testId="@Model.source.FirstOrDefault().TestId"
+                   asp-route-sortOrder="@ViewBag.MarkSortParm">Mark</a>
+            </th>
             <th></th>
         </tr>
-        @foreach (var attempt in Model)
+        @foreach (var attempt in Model.source)
         {
             <tr>
                 <td>
                     @if (users != null)
                     {
                         <div>
-                            @users.Where(x => x.Id == attempt.UserId).Select(x => x.FirstName).FirstOrDefault()
+                            @{
+                                var user = users.Where(x => x.Id == attempt.UserId).FirstOrDefault();
+                            }
+                            @user.FirstName&nbsp;@user.LastName
                         </div>
                     }
                 </td>
@@ -74,7 +94,12 @@ else
                     }
                     else
                     {
-                        <td>User left test without submitting</td>
+                        <td>
+                            <div class="alert alert-warning" style="line-height: 30px; padding: 0px 15px;">
+                                User left test
+                            </div>
+                        </td>
+                        <td></td>
                         <td></td>
                     }
 
@@ -83,4 +108,25 @@ else
             </tr>
         }
     </table>
+
+    var previousDisabled = !Model.pagination.HasPreviousPage ? "disabled" : "";
+    var nextDisabled = !Model.pagination.HasNextPage ? "disabled" : "";
+
+    <a asp-action="TestAttempts"
+       asp-route-testId="@Model.source.FirstOrDefault().TestId"
+       asp-route-page="@(Model.pagination.PageNum - 1)"
+       asp-route-sortOrder="@ViewData["CurrentSort"]"
+       class="btn text-gradient-orange2 border-orange2 @previousDisabled">
+        Previous
+    </a>
+
+    <small>Page @ViewBag.Page of @ViewBag.PageCount</small>
+
+    <a asp-action="TestAttempts"
+       asp-route-testId="@Model.source.FirstOrDefault().TestId"
+       asp-route-page="@(Model.pagination.PageNum + 1)"
+       asp-route-sortOrder="@ViewData["CurrentSort"]"
+       class="btn text-gradient-orange2 border-orange2 @nextDisabled">
+        Next
+    </a>
 }

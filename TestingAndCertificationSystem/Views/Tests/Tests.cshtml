@@ -1,54 +1,82 @@
-﻿@model List<TestingAndCertificationSystem.Test>
+﻿@using TestingAndCertificationSystem.Resources;
+@model PaginationGeneric<Test>
 
-<h2>Tests</h2>
+<div class="col-md-10">
+    <h2 class="text-gradient-orange2">Tests</h2>
+    <br />
+</div>
 
-<table class="table">
-    <tr>
-        <th>Name</th>
-        <th>Description</th>
-        <th>Duration</th>
-        <th>Is active</th>
-        <th>Attempts</th>
-        <th></th>
-        <th></th>
-    </tr>
-    @foreach (var test in Model)
-    {
+@if (Model.source.Count() == 0)
+{
+    <div class="col-md-10">
+        <div class="alert alert-info" role="alert">
+            No tests found
+        </div>
+    </div>
+}
+else
+{
+    <table class="table">
         <tr>
-            <td>@test.Name</td>
-            <td>@test.Description</td>
-            <td>@test.DurationInMinutes min</td>
-            <td>
-                @{
-                    if (test.IsActive == true)
-                    {
-                        <div class="alert alert-success" style=" line-height: 30px; padding: 0px 15px;">
-                            Active
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="alert alert-danger" style=" line-height: 30px; padding: 0px 15px;">
-                            Not active
-                        </div>
-                    }
-                }
-            </td>
-            <td>
-                <form asp-controller="Tests" asp-action="TestAttempts" asp-route-testId="@test.Id">
-                    <button type="submit" class="btn btn-sm btn-success"> Attempts </button>
-                </form>
-            </td>
-            <td>
-                <form asp-controller="Tests" asp-action="TestInfopage" asp-route-testId="@test.Id">
-                    <button type="submit" class="btn btn-sm btn-info"> View details </button>
-                </form>
-            </td>
-            <td>
-                <form asp-controller="Tests" asp-action="DeleteTest" asp-route-testId="@test.Id" method="post">
-                    <button type="submit" class="btn btn-sm btn-danger"> Delete </button>
-                </form>
-            </td>
+            <th class="text-gradient-orange2"><a asp-action="Tests" asp-route-sortOrder="@ViewBag.NameSortParm">Name</a></th>
+            <th class="text-gradient-orange1">Description</th>
+            <th class="text-gradient-orange2"><a asp-action="Tests" asp-route-sortOrder="@ViewBag.DurationSortParm">Duration</a></th>
+            <th class="text-gradient-orange2"><a asp-action="Tests" asp-route-sortOrder="@ViewBag.IsActiveSortParm">Is active</a></th>
+            <th></th>
+            <th></th>
         </tr>
-    }
-</table>
+        @foreach (var test in Model.source)
+        {
+            <tr>
+                <td>@test.Name</td>
+                <td>@test.Description</td>
+                <td>@test.DurationInMinutes min</td>
+                <td>
+                    @{
+                        if (test.IsActive == true)
+                        {
+                            <div class="alert alert-success" style=" line-height: 30px; padding: 0px 15px;">
+                                Active
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="alert alert-danger" style=" line-height: 30px; padding: 0px 15px;">
+                                Not active
+                            </div>
+                        }
+                    }
+                </td>
+                <td>
+                    <form asp-controller="Tests" asp-action="TestAttempts" asp-route-testId="@test.Id">
+                        <button type="submit" class="btn btn-sm btn-success"> Attempts </button>
+                    </form>
+                </td>
+                <td>
+                    <form asp-controller="Tests" asp-action="TestInfopage" asp-route-testId="@test.Id">
+                        <button type="submit" class="btn btn-sm btn-info"> View details </button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </table>
+
+    var previousDisabled = !Model.pagination.HasPreviousPage ? "disabled" : "";
+    var nextDisabled = !Model.pagination.HasNextPage ? "disabled" : "";
+
+    <a asp-action="Tests"
+       asp-route-page="@(Model.pagination.PageNum - 1)"
+       asp-route-sortOrder="@ViewData["CurrentSort"]"
+       class="btn text-gradient-orange2 border-orange2 @previousDisabled">
+        Previous
+    </a>
+
+    <small>Page @ViewBag.Page of @ViewBag.PageCount</small>
+
+    <a asp-action="Tests"
+       asp-route-page="@(Model.pagination.PageNum + 1)"
+       asp-route-sortOrder="@ViewData["CurrentSort"]"
+       class="btn text-gradient-orange2 border-orange2 @nextDisabled">
+        Next
+    </a>
+}

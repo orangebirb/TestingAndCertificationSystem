@@ -7,7 +7,19 @@ namespace TestingAndCertificationSystem.Resources
 {
     public enum SortingOrders
     {
+        NameAsc,
+        NameDesc,
         MarkAsc,
-        MarkDesc
+        MarkDesc,
+        DateAsc,
+        DateDesc,
+        PassedOnly,
+        FailedOnly,
+        DurationAsc,
+        DurationDesc,
+        CityAsc,
+        CityDesc,
+        IsActiveOnly,
+        IsNotActiveOnly
     }
 }

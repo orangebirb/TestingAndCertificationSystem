@@ -6,7 +6,8 @@
 }
 
 <div class="col-md-10">
-    <h2>Your tests attempts</h2>
+    <h2 class="text-gradient-orange2">Your tests attempts</h2>
+    <br />
 </div>
 
 @if (Model.source.Count() == 0)
@@ -21,16 +22,16 @@ else
 {
     <table class="table">
         <tr>
-            <th>Test</th>
-            <th>Start time</th>
-            <th><a asp-action="UserAttempts" asp-route-sortOrder="@ViewBag.MarkSortParm">Mark</a></th>
-            <th>Is passed</th>
+            <th class="text-gradient-orange1">Test</th>
+            <th class="text-gradient-orange2"><a asp-action="UserAttempts" asp-route-sortOrder="@ViewBag.DateSortParm">Start time</a></th>
+            <th class="text-gradient-orange2"><a asp-action="UserAttempts" asp-route-sortOrder="@ViewBag.MarkSortParm">Mark</a></th>
+            <th class="text-gradient-orange2"><a asp-action="UserAttempts" asp-route-sortOrder="@ViewBag.PassSortParm">Result</a></th>
             <th></th>
         </tr>
         @foreach (var attempt in Model.source)
         {
             var registration = registrations.Where(x => x.Id == attempt.RegistrationId).FirstOrDefault();
-            
+
             <tr>
                 <td>
                     <form asp-controller="Tests" asp-action="Instruction" asp-route-testId="@registration.TestId" method="post">
@@ -42,7 +43,7 @@ else
                 </td>
                 <td>
                     @attempt.FinalMarkInPercents
-                </td> 
+                </td>
                 <td>
                     @if (attempt.IsPassed == true)
                     {
@@ -65,14 +66,19 @@ else
     var nextDisabled = !Model.pagination.HasNextPage ? "disabled" : "";
 
     <a asp-action="UserAttempts"
-        asp-route-page="@(Model.pagination.PageNum - 1)"
-        class="btn btn-default @previousDisabled">
+       asp-route-page="@(Model.pagination.PageNum - 1)"
+       asp-route-sortOrder="@ViewData["CurrentSort"]"
+       class="btn text-gradient-orange2 border-orange2 @previousDisabled">
         Previous
     </a>
+
+    <small>Page @ViewBag.Page of @ViewBag.PageCount</small>
+
     <a asp-action="UserAttempts"
-        asp-route-page="@(Model.pagination.PageNum + 1)"
-        class="btn btn-default @nextDisabled">
+       asp-route-page="@(Model.pagination.PageNum + 1)"
+       asp-route-sortOrder="@ViewData["CurrentSort"]"
+       class="btn text-gradient-orange2 border-orange2 @nextDisabled">
         Next
     </a>
-    
+
 }

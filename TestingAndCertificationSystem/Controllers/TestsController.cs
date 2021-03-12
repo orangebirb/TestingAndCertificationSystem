@@ -20,7 +20,7 @@ namespace TestingAndCertificationSystem.Controllers
     public class TestsController : Controller
     {
         private readonly UserManager<UserIdentity> _userManager;
-        private TestingSystemDBContext _context = new TestingSystemDBContext();
+        private readonly TestingSystemDBContext _context = new TestingSystemDBContext();
 
         public TestsController(UserManager<UserIdentity> userManager)
         {
@@ -30,13 +30,20 @@ namespace TestingAndCertificationSystem.Controllers
         #region test management
 
         [Authorize(Roles = Roles.CompanyAdmin + ", " + Roles.CompanyModerator)]
-        public async Task<IActionResult> Tests()
+        public async Task<IActionResult> Tests(SortingOrders sortOrder, int page = 1)
         {
+            int pageSize = 10;
+
+            ViewData["CurrentSort"] = sortOrder;
+            ViewData["DurationSortParm"] = sortOrder == SortingOrders.DurationAsc ? SortingOrders.DurationDesc : SortingOrders.DurationAsc;
+            ViewData["NameSortParm"] = sortOrder == SortingOrders.NameAsc ? SortingOrders.NameDesc : SortingOrders.NameAsc;
+            ViewData["IsActiveSortParm"] = sortOrder == SortingOrders.IsActiveOnly ? SortingOrders.IsNotActiveOnly : SortingOrders.IsActiveOnly;
+
             //list of all additional tasks
             List<AdditionalTask> listOfTasks = new List<AdditionalTask>();
             listOfTasks = _context.AdditionalTask.ToList();
 
-            ViewBag.TasksList = listOfTasks;
+            IQueryable<Test> tests;
 
             UserIdentity currentUser = await _userManager.GetUserAsync(User);
             int adminCompanyId = currentUser.CompanyId; // current user's (admin's) company id
@@ -47,15 +54,40 @@ namespace TestingAndCertificationSystem.Controllers
                 List<string> companyWorkersId = _userManager.Users.Where(x => x.CompanyId == adminCompanyId).Select(x => x.Id).ToList();
 
                 //tests where author is in company (admin and moderators)
-                var testsAdmin = _context.Test.Where(x => companyWorkersId.Any(z => z == x.TestAuthorId)).ToList();
-
-                return View(testsAdmin);
+                tests = _context.Test.Where(x => companyWorkersId.Any(z => z == x.TestAuthorId));
+            }
+            else
+            {
+                //only this.user tests (for moderators)
+                tests = _context.Test.Where(x => x.TestAuthorId == User.FindFirstValue(ClaimTypes.NameIdentifier));
             }
 
-            //only this.user tests (for moderators)
-            var tests = _context.Test.Where(x => x.TestAuthorId == User.FindFirstValue(ClaimTypes.NameIdentifier));
+            tests = sortOrder switch
+            {
+                SortingOrders.DurationAsc => tests.OrderBy(x => x.DurationInMinutes),
+                SortingOrders.DurationDesc => tests.OrderByDescending(x => x.DurationInMinutes),
+                SortingOrders.NameAsc => tests.OrderBy(x => x.Name),
+                SortingOrders.NameDesc => tests.OrderByDescending(x => x.Name),
+                SortingOrders.IsActiveOnly => tests.Where(x => x.IsActive == true),
+                SortingOrders.IsNotActiveOnly => tests.Where(x => x.IsActive == false),
+                _ => tests
+            };
 
-            return View(tests.ToList());
+            var count = await tests.CountAsync();
+            var items = await tests.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
+
+            Pagination pagination = new Pagination(count, page, pageSize);
+            PaginationGeneric<Test> paginationTests = new PaginationGeneric<Test>
+            {
+                pagination = pagination,
+                source = items
+            };
+
+            ViewBag.TasksList = listOfTasks;
+            ViewBag.Page = page;
+            ViewBag.PageCount = count / pageSize + 1;
+
+            return View(paginationTests);
         }
 
         [Authorize(Roles = Roles.CompanyAdmin + ", " + Roles.CompanyModerator)]
@@ -94,7 +126,7 @@ namespace TestingAndCertificationSystem.Controllers
         }
 
         [Authorize(Roles = Roles.CompanyAdmin + ", " + Roles.CompanyModerator)]
-        public async Task<IActionResult> EditTest(int testId)
+        public IActionResult EditTest(int testId)
         {
             Test testToEdit = _context.Test.Find(testId);
 
@@ -663,17 +695,50 @@ namespace TestingAndCertificationSystem.Controllers
         #region assignment results
 
         [Authorize(Roles = Roles.CompanyAdmin + ", " + Roles.CompanyModerator)]
-        public async Task<IActionResult> TestAttempts(int testId)
+        public async Task<IActionResult> TestAttempts(int testId, SortingOrders sortOrder, int page = 1)
         {
-            var testAttempts = _context.Registration.Where(x => x.TestId == testId).ToList();
+            int pageSize = 8;
 
-            var users = _userManager.Users.Where(x => testAttempts.Select(x => x.UserId).Any(z => z == x.Id)).ToList();
-            var results = _context.TestResults.Where(x => testAttempts.Select(x => x.Id).Any(z => z == x.RegistrationId)).ToList();
+            ViewData["CurrentSort"] = sortOrder;
+
+            ViewData["DateSortParm"] = sortOrder == SortingOrders.DateAsc ? SortingOrders.DateDesc : SortingOrders.DateAsc;
+            ViewData["MarkSortParm"] = sortOrder == SortingOrders.MarkAsc ? SortingOrders.MarkDesc : SortingOrders.MarkAsc;
+            ViewData["PassSortParm"] = sortOrder == SortingOrders.PassedOnly ? SortingOrders.FailedOnly : SortingOrders.PassedOnly;
+
+            IQueryable<Registration> testAttempts = _context.Registration.Where(x => x.TestId == testId).OrderBy(x => x.Id);
+
+            var users = _userManager.Users.Where(x => testAttempts.ToList().Select(x => x.UserId).Any(z => z == x.Id)).ToList();
+            var results = _context.TestResults.Where(x => testAttempts.ToList().Select(x => x.Id).Any(z => z == x.RegistrationId)).ToList();
+
+            testAttempts = sortOrder switch
+            {
+                SortingOrders.DateAsc => testAttempts.OrderBy(x => x.EntryTime),
+                SortingOrders.DateDesc => testAttempts.OrderByDescending(x => x.EntryTime),
+                SortingOrders.MarkDesc => testAttempts.OrderByDescending(x => _context.TestResults.Where(y => y.RegistrationId == x.Id).FirstOrDefault().FinalMarkInPercents),
+                SortingOrders.MarkAsc => testAttempts.OrderBy(x => _context.TestResults.Where(y => y.RegistrationId == x.Id).FirstOrDefault().FinalMarkInPercents),
+                SortingOrders.PassedOnly => testAttempts.Where(x => _context.TestResults.Where(y => y.RegistrationId == x.Id).FirstOrDefault().IsPassed == true),
+                SortingOrders.FailedOnly => testAttempts.Where(x => _context.TestResults.Where(y => y.RegistrationId == x.Id).FirstOrDefault().IsPassed == false),
+                _ => testAttempts
+            };
 
             ViewBag.Users = users;
             ViewBag.Results = results;
 
-            return View(testAttempts);
+            var count = await testAttempts.CountAsync();
+            var items = await testAttempts.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
+
+            Pagination pagination = new Pagination(count, page, pageSize);
+            PaginationGeneric<Registration> paginationTestAttempts = new PaginationGeneric<Registration>
+            {
+                pagination = pagination,
+                source = items
+            };
+
+            ViewBag.TestName = _context.Test.Where(x => x.Id == testId).FirstOrDefault().Name;
+            ViewBag.Page = page;
+            ViewBag.PageCount = count / pageSize + 1;
+
+            return View(paginationTestAttempts);
         }
 
         [Authorize(Roles = Roles.CompanyAdmin + ", " + Roles.CompanyModerator)]
@@ -718,9 +783,12 @@ namespace TestingAndCertificationSystem.Controllers
         [Authorize(Roles = Roles.User + ", " + Roles.CompanyModerator)]
         public async Task<IActionResult> UserAttempts(SortingOrders sortOrder, int page = 1)
         {
-            int pageSize = 10;
+            int pageSize = 8;
 
+            ViewData["CurrentSort"] = sortOrder;
             ViewData["MarkSortParm"] = sortOrder == SortingOrders.MarkAsc ? SortingOrders.MarkDesc : SortingOrders.MarkAsc;
+            ViewData["DateSortParm"] = sortOrder == SortingOrders.DateAsc ? SortingOrders.DateDesc : SortingOrders.DateAsc;
+            ViewData["PassSortParm"] = sortOrder == SortingOrders.PassedOnly ? SortingOrders.FailedOnly : SortingOrders.PassedOnly;
 
             UserIdentity currentUser = await _userManager.GetUserAsync(User);
 
@@ -731,7 +799,12 @@ namespace TestingAndCertificationSystem.Controllers
             userTestResults = sortOrder switch
             {
                 SortingOrders.MarkAsc => userTestResults.OrderBy(x => x.FinalMarkInPercents),
-                SortingOrders.MarkDesc => userTestResults.OrderByDescending(x => x.FinalMarkInPercents)
+                SortingOrders.MarkDesc => userTestResults.OrderByDescending(x => x.FinalMarkInPercents),
+                SortingOrders.DateAsc => userTestResults.OrderBy(x => x.RegistrationId),
+                SortingOrders.DateDesc => userTestResults.OrderByDescending(x => x.RegistrationId),
+                SortingOrders.PassedOnly => userTestResults.Where(x => x.IsPassed == true),
+                SortingOrders.FailedOnly => userTestResults.Where(x => x.IsPassed == false),
+                _ => userTestResults
             };
 
             var count = await userTestResults.CountAsync();
@@ -745,10 +818,11 @@ namespace TestingAndCertificationSystem.Controllers
             };
 
             ViewBag.registrations = userRegistrations;
+            ViewBag.Page = page;
+            ViewBag.PageCount = count / pageSize + 1;
 
             return View(paginationTestAttempts);
-
-            
+  
         }
 
 
