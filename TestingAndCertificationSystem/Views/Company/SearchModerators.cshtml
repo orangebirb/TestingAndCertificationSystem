@@ -1,39 +1,76 @@
-﻿@model IEnumerable<TestingAndCertificationSystem.Models.UserIdentity>
+﻿@using TestingAndCertificationSystem.Resources;
+@model PaginationGeneric<UserIdentity>
 
-<h2>Add new moderators</h2>
+<div class="col-md-10">
+    <h2 class="text-gradient-orange2">Add new moderators</h2>
+    &nbsp;&nbsp;&nbsp;&nbsp;
+    <i class="fas fa-caret-left orange1"></i>
+    <a class="btn-link orange1" asp-controller="Company" asp-action="Moderators">
+        Company moderators
+    </a>
+    <br />
+    <br />
+</div>
 
 <div asp-validation-summary="All" class="text-danger"></div>
 
 <form method="get" asp-action="SearchModerators">
-    <p>
-        <input type="search" placeholder="Email or Name" value="@ViewData["userDetails"]" name="userSearch" />
-        <input type="submit" value="Search" class="btn btn-primary" />
-        <a asp-action="SearchModerators">Clear</a>
-    </p>
+    <div class="input-group">
+        <input type="search" class="form-control" placeholder="Email or Name" value="@ViewData["userDetails"]" name="userSearch" />
+        <button type="submit" class="btn btn-outline-warning"><i class="fa fa-search orange2"></i></button>
+    </div>
 </form>
 
-<table class="table">
-    <tr>
-        <th>Name</th>
-        <th>Surname</th>
-        <th>City</th>
-        <th>Description</th>
-        <th>Email</th>
-        <th> </th>
-    </tr>
-    @foreach (var user in Model)
-    {
+@if (Model.source.Count() == 0)
+{
+    <div class="col-md-10">
+        <div class="alert alert-info" role="alert">
+            No users found
+        </div>
+    </div>
+}
+else
+{
+    <table class="table">
         <tr>
-            <td>@user.FirstName</td>
-            <td>@user.LastName</td>
-            <td>@user.City</td>
-            <td>@user.Description</td>
-            <td>@user.Email</td>
-            <td>
-                <form asp-action="AddModerator" asp-route-id="@user.Id" method="post">
-                    <button type="submit" class="btn btn-sm btn-success"> Add </button>
-                </form>
-            </td>
+            <th class="text-gradient-orange2"><a asp-action="SearchModerators" asp-route-sortOrder="@ViewBag.NameSortParm">Name</a></th>
+            <th class="text-gradient-orange2"><a asp-action="SearchModerators" asp-route-sortOrder="@ViewBag.CitySortParm">City</a></th>
+            <th class="text-gradient-orange1">Description</th>
+            <th class="text-gradient-orange1">Email</th>
+            <th></th>
         </tr>
-    }
-</table>
+        @foreach (var user in Model.source)
+        {
+            <tr>
+                <td>@user.FirstName&nbsp;@user.LastName</td>
+                <td>@user.City</td>
+                <td>@user.Description</td>
+                <td>@user.Email</td>
+                <td>
+                    <form asp-action="AddModerator" asp-route-id="@user.Id" method="post">
+                        <button type="submit" class="btn btn-sm btn-success"> Add </button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </table>
+
+    var previousDisabled = !Model.pagination.HasPreviousPage ? "disabled" : "";
+    var nextDisabled = !Model.pagination.HasNextPage ? "disabled" : "";
+
+    <a asp-action="SearchModerators"
+       asp-route-page="@(Model.pagination.PageNum - 1)"
+       asp-route-sortOrder="@ViewData["CurrentSort"]"
+       class="btn text-gradient-orange2 border-orange2 @previousDisabled">
+        Previous
+    </a>
+
+    <small>Page @ViewBag.Page of @ViewBag.PageCount</small>
+
+    <a asp-action="SearchModerators"
+       asp-route-page="@(Model.pagination.PageNum + 1)"
+       asp-route-sortOrder="@ViewData["CurrentSort"]"
+       class="btn text-gradient-orange2 border-orange2 @nextDisabled">
+        Next
+    </a>
+}

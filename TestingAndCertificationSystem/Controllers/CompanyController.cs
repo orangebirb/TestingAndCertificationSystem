@@ -61,25 +61,60 @@ namespace TestingAndCertificationSystem.Controllers
             };
 
             ViewBag.Page = page;
-            ViewBag.PageCount = count / pageSize + 1;
+            ViewBag.PageCount = (count + pageSize - 1) / pageSize;
 
             return View(paginationModerators);
         }
 
         [HttpGet]
-        public IActionResult SearchModerators(string userSearch)
+        public IActionResult SearchModerators(string userSearch, SortingOrders sortOrder, int page = 1)
         {
+            int pageSize = 10;
+
+            ViewData["CurrentSort"] = sortOrder;
+
+            ViewData["NameSortParm"] = sortOrder == SortingOrders.NameAsc ? SortingOrders.NameDesc : SortingOrders.NameAsc;
+            ViewData["CitySortParm"] = sortOrder == SortingOrders.CityAsc ? SortingOrders.CityDesc : SortingOrders.CityAsc;
+
+            IEnumerable<UserIdentity> searchResult;
+
             if (string.IsNullOrEmpty(userSearch) || string.IsNullOrWhiteSpace(userSearch))
             {
-                return View(_userManager.GetUsersInRoleAsync(Roles.User).Result);
+                searchResult = _userManager.GetUsersInRoleAsync(Roles.User).Result.ToList();
+            }
+            else
+            {
+                searchResult = _userManager.GetUsersInRoleAsync(Roles.User).Result.Where(
+                    x => x.Email.ToLower().Contains(userSearch.ToLower()) || 
+                    x.FirstName.ToLower().Contains(userSearch.ToLower()) || 
+                    x.LastName.ToLower().Contains(userSearch.ToLower())).ToList();
             }
 
             ViewData["userDetails"] = userSearch;
 
-            var usersSearchResult = _userManager.GetUsersInRoleAsync(Roles.User).Result.Where(x => x.Email.Contains(userSearch)
-                || x.FirstName.Contains(userSearch) || x.LastName.Contains(userSearch));
+            searchResult = sortOrder switch
+            {
+                SortingOrders.CityAsc => searchResult.OrderBy(x => x.City),
+                SortingOrders.CityDesc => searchResult.OrderByDescending(x => x.City),
+                SortingOrders.NameAsc => searchResult.OrderBy(x => x.FirstName),
+                SortingOrders.NameDesc => searchResult.OrderByDescending(x => x.FirstName),
+                _ => searchResult
+            };
 
-            return View(usersSearchResult);
+            var count = searchResult.Count();
+            var items = searchResult.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+
+            Pagination pagination = new Pagination(count, page, pageSize);
+            PaginationGeneric<UserIdentity> paginationSearchResult = new PaginationGeneric<UserIdentity>
+            {
+                pagination = pagination,
+                source = items
+            };
+
+            ViewBag.Page = page;
+            ViewBag.PageCount = (count + pageSize - 1) / pageSize;
+
+            return View(paginationSearchResult);
         }
 
         public async Task<IActionResult> AddModerator(string id)

@@ -85,7 +85,7 @@ namespace TestingAndCertificationSystem.Controllers
 
             ViewBag.TasksList = listOfTasks;
             ViewBag.Page = page;
-            ViewBag.PageCount = count / pageSize + 1;
+            ViewBag.PageCount = (count + pageSize - 1) / pageSize;
 
             return View(paginationTests);
         }
@@ -736,7 +736,7 @@ namespace TestingAndCertificationSystem.Controllers
 
             ViewBag.TestName = _context.Test.Where(x => x.Id == testId).FirstOrDefault().Name;
             ViewBag.Page = page;
-            ViewBag.PageCount = count / pageSize + 1;
+            ViewBag.PageCount = (count + pageSize - 1) / pageSize;
 
             return View(paginationTestAttempts);
         }
@@ -819,7 +819,7 @@ namespace TestingAndCertificationSystem.Controllers
 
             ViewBag.registrations = userRegistrations;
             ViewBag.Page = page;
-            ViewBag.PageCount = count / pageSize + 1;
+            ViewBag.PageCount = (count + pageSize - 1) / pageSize;
 
             return View(paginationTestAttempts);
   
