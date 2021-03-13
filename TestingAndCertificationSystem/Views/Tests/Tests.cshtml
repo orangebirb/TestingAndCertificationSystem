@@ -1,10 +1,16 @@
 ﻿@using TestingAndCertificationSystem.Resources;
 @model PaginationGeneric<Test>
 
-<div class="col-md-10">
-    <h2 class="text-gradient-orange2">Tests</h2>
-    <br />
-</div>
+    <div class="col-md-10">
+        <h2 class="text-gradient-orange2">Tests</h2>
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        <i class="fas fa-caret-left orange1"></i>
+        <a class="btn-link orange1" asp-controller="Tests" asp-action="CreateTest">
+            Create new test
+        </a>
+        <br />
+        <br />
+    </div>
 
 @if (Model.source.Count() == 0)
 {

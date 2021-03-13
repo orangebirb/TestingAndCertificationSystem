@@ -4,27 +4,72 @@
     ViewData["Title"] = "Home Page";
 }
 
-@if (User.IsInRole(Roles.CompanyAdmin))
-{
-    <p>Admin of company</p>
-}
-@if (User.IsInRole(Roles.CompanyModerator))
-{
-    <p>Moderator of company</p>
-}
-@if (User.IsInRole(Roles.User))
-{
-    <p>User</p>
-}
-
-@if (User.Identity.IsAuthenticated)
-{
-    <p>@User.Identity.Name</p>
-}
-else
-{
-    <div class="text-center">
-        <h1 class="display-4">Welcome</h1>
+<section class="jumbotron text-center" style="background-image: url('../images/login_bg.jpg'); background-size:cover">
+    <div>
+        <div class="card" style="backface-visibility: hidden">
+            <div class="card-body">
+                <h1 class="jumbotron-heading text-gradient-orange2">Testing and certification system</h1>
+                <br />
+                <p class="lead text-muted">
+                    The <b>testing and certification system</b> 
+                    is a diploma project developed by <b>KI-17022</b>.
+                </p>
+            </div>
+        </div>
     </div>
+</section>
+
+@if(User.Identity.IsAuthenticated)
+{
+    <h3 class="text-center text-gradient-orange1">What to do?</h3>
 }
 
+<br />
+<div class="row">
+    <div class="col-12">
+        <div class="card-deck">
+
+            @if (User.IsInRole(Roles.CompanyAdmin))
+            {
+                <div class="card border-orange1">
+                    <div class="card-body">
+                        <h4 class="card-title text-gradient-orange2">Manage moderators</h4>
+                        <p class="card-text">Add or remove moderators who can create tests for your company</p>
+                        <a class="btn btn-info btn-sm" asp-controller="Company" asp-action="Moderators">Moderators</a>
+                        <a class="btn btn-info btn-sm" asp-controller="Company" asp-action="SearchModerators">Search new moderators</a>
+                    </div>
+                </div>
+
+                <div class="card border-orange1">
+                    <div class="card-body">
+                        <h4 class="card-title text-gradient-orange2">Company information</h4>
+                        <p class="card-text">See or update information about the company</p>
+                        <a class="btn btn-info btn-sm" asp-controller="Company" asp-action="Edit">Company information</a>
+                    </div>
+                </div>
+            }
+            @if (User.IsInRole(Roles.CompanyAdmin) || User.IsInRole(Roles.CompanyModerator))
+            {
+                <div class="card border-orange1">
+                    <div class="card-body">
+                        <h4 class="card-title text-gradient-orange2">Manage tests</h4>
+                        <p class="card-text">Update existing tests or create new ones</p>
+                        <a class="btn btn-info btn-sm" asp-controller="Tests" asp-action="Tests">Your tests</a>
+                        <a class="btn btn-info btn-sm" asp-controller="Tests" asp-action="CreateTest">Create new test</a>
+                    </div>
+                </div>
+            }
+            @if (User.IsInRole(Roles.CompanyModerator) || User.IsInRole(Roles.User))
+            {
+                <div class="card border-orange1">
+                    <div class="card-body">
+                        <h4 class="card-title text-gradient-orange2">Test attempts</h4>
+                        <p class="card-text">See a summary of the taken tests</p>
+                        <a class="btn btn-info btn-sm" asp-controller="Tests" asp-action="UserAttempts">Test attempts</a>
+                    </div>
+                </div>
+            }
+
+        </div>
+    </div>
+</div>

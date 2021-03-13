@@ -21,6 +21,8 @@
     </div>
 </form>
 
+<br />
+
 @if (Model.source.Count() == 0)
 {
     <div class="col-md-10">
@@ -47,9 +49,27 @@ else
                 <td>@user.Description</td>
                 <td>@user.Email</td>
                 <td>
-                    <form asp-action="AddModerator" asp-route-id="@user.Id" method="post">
-                        <button type="submit" class="btn btn-sm btn-success"> Add </button>
-                    </form>
+                    <button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#Model_@user.Id">
+                        Add
+                    </button>
+                    <div class="modal fade" id="Model_@user.Id" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title orange2" id="exampleModalLabel">Add moderator</h5>
+                                </div>
+                                <div class="modal-body">
+                                    Do you want to add <b class="text-gradient-orange1">@user.FirstName @user.LastName</b> to company moderators?
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Close</button>
+                                    <form asp-action="AddModerator" asp-route-id="@user.Id" method="post">
+                                        <button type="submit" class="btn btn-sm btn-success"> Add </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </td>
             </tr>
         }
