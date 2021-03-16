@@ -9,34 +9,25 @@ namespace TestingAndCertificationSystem.ViewModels
     public class TestViewModel
     {
         [Required]
-        [Display(Name = "Name")]
         public string Name { get; set; }
 
-        [Display(Name = "Description")]
         public string Description { get; set; }
 
         [Required]
-        [Display(Name = "Duration in minutes")]
+        [Range(1, int.MaxValue, ErrorMessage = "Only positive number allowed for duration")]
         public int DurationInMinutes { get; set; }
 
         [Required]
-        [Display(Name = "Certificate")]
         public bool Certificate { get; set; }
 
         [Required]
-        [Display(Name = "Instruction")]
         public string Instruction { get; set; }
 
-        [Display(Name = "Additional task")]
-        public int AdditionalTaskId { get; set; }
-
         [Required]
-        [Display(Name = "Access only for selected users")]
         public bool IsPrivate { get; set; }
 
         [Required]
-        [Display(Name = "Required mark to pass")]
-        [Range(0, 100, ErrorMessage = "Incorrect mark value")]
+        [Range(0, 100, ErrorMessage = "Required grade should be in range 0 - 100 percents")]
         public float PassingMarkInPercents { get; set; }
     }
 }

@@ -541,6 +541,7 @@ namespace TestingAndCertificationSystem.Controllers
             {
                 if (model.Choices.All(x => x.IsChecked == false))
                 {
+                    //if submit without any answer
                     TempData["ErrorMessage"] = "You did not choose an answer";
                     return RedirectToAction("Test", new { token = token, qNum = qNum });
                 }
@@ -720,6 +721,7 @@ namespace TestingAndCertificationSystem.Controllers
         #region assignment results
 
         [Authorize(Roles = Roles.CompanyAdmin + ", " + Roles.CompanyModerator)]
+        //attempts of a chosen test (only for admin or moderator)
         public async Task<IActionResult> TestAttempts(int testId, SortingOrders sortOrder, int page = 1)
         {
             int pageSize = 8;
@@ -730,8 +732,10 @@ namespace TestingAndCertificationSystem.Controllers
             ViewData["MarkSortParm"] = sortOrder == SortingOrders.MarkAsc ? SortingOrders.MarkDesc : SortingOrders.MarkAsc;
             ViewData["PassSortParm"] = sortOrder == SortingOrders.PassedOnly ? SortingOrders.FailedOnly : SortingOrders.PassedOnly;
 
+            //all attempts of selected test
             IQueryable<Registration> testAttempts = _context.Registration.Where(x => x.TestId == testId).OrderBy(x => x.Id);
 
+            //additional data for displaying in view
             var users = _userManager.Users.Where(x => testAttempts.ToList().Select(x => x.UserId).Any(z => z == x.Id)).ToList();
             var results = _context.TestResults.Where(x => testAttempts.ToList().Select(x => x.Id).Any(z => z == x.RegistrationId)).ToList();
 
@@ -768,6 +772,7 @@ namespace TestingAndCertificationSystem.Controllers
 
 
         [Authorize(Roles = Roles.CompanyAdmin + ", " + Roles.CompanyModerator)]
+        //attempt details (only for admin or moderator)
         public IActionResult AttemptInfopage(int registrationId)
         {
             Registration registration = _context.Registration.Find(registrationId);
@@ -808,6 +813,7 @@ namespace TestingAndCertificationSystem.Controllers
 
 
         [Authorize(Roles = Roles.User + ", " + Roles.CompanyModerator)]
+        //user can only see their test attempts
         public async Task<IActionResult> UserAttempts(SortingOrders sortOrder, int page = 1)
         {
             int pageSize = 8;
@@ -915,7 +921,7 @@ namespace TestingAndCertificationSystem.Controllers
 
             if (test != null)
             {
-                var user = _context.VerifiedUsers.Where(x => x.UserEmail == userEmail).FirstOrDefault();
+                var user = _context.VerifiedUsers.Where(x => x.UserEmail == userEmail && x.TestId == test.Id).FirstOrDefault();
 
                 _context.VerifiedUsers.Remove(user);
 
