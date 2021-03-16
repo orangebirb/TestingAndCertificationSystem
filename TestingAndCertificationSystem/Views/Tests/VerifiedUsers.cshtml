@@ -1,0 +1,90 @@
+﻿@using TestingAndCertificationSystem.Resources;
+@model PaginationGeneric<VerifiedUsers>
+
+<div class="col-md-10">
+    <h2 class="text-gradient-orange2">Verified users</h2>
+    &nbsp;&nbsp;&nbsp;&nbsp;
+    <i class="fas fa-caret-left orange1"></i>
+    <a class="btn-link orange1" asp-controller="Tests" asp-action="TestInfopage" asp-route-testId="@Context.Request.Query["testId"]">
+        Back to test information
+    </a>
+    <br />
+    <br />
+</div>
+
+<form method="post" asp-action="AddUserToVL" , asp-route-testId="@Context.Request.Query["testId"]">
+    <div class="input-group">
+        <input type="search" name="userEmail" class="form-control" placeholder="Enter user's email">
+        <button type="submit" class="btn btn-outline-warning"><i class="fa fa-search orange2"></i></button>
+    </div>
+</form>
+<br />
+
+@if (Model.source.Count() == 0)
+{
+    <div class="col-md-10">
+        <div class="alert alert-info" role="alert">
+            No users can access this test
+        </div>
+    </div>
+}
+else
+{
+    <table class="table">
+        <tr>
+            <th class="text-gradient-orange2"><a asp-action="VerifiedUsers" asp-route-sortOrder="@ViewBag.EmailSortParm">Email</a></th>
+        </tr>
+        <tr></tr>
+        @foreach (var user in Model.source)
+        {
+            <tr>
+                <td>@user.UserEmail</td>
+                <td>
+                    <div style="margin-left:auto">
+                        <button type="button" class="btn btn-sm btn-danger" data-toggle="modal" data-target="#Model_@user.Id">
+                            Delete
+                        </button>
+                        <div class="modal fade" id="Model_@user.Id" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title orange2" id="exampleModalLabel">Delete question</h5>
+                                    </div>
+                                    <div class="modal-body">
+                                        Do you want to delete <span class="text-gradient-orange1 font-weight-bold">@user.UserEmail</span> from list?
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Close</button>
+                                        <form asp-controller="Tests" asp-action="RemoveUserFromVL" asp-route-testId="@Context.Request.Query["testId"]" asp-route-userEmail="@user.UserEmail">
+                                            <button type="submit" class="btn btn-sm btn-danger"> Remove </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                </td>
+            </tr>
+        }
+    </table>
+
+    var previousDisabled = !Model.pagination.HasPreviousPage ? "disabled" : "";
+    var nextDisabled = !Model.pagination.HasNextPage ? "disabled" : "";
+
+    <a asp-action="Tests"
+       asp-route-page="@(Model.pagination.PageNum - 1)"
+       asp-route-sortOrder="@ViewData["CurrentSort"]"
+       class="btn text-gradient-orange2 border-orange2 @previousDisabled">
+        Previous
+    </a>
+
+    <small>Page @ViewBag.Page of @ViewBag.PageCount</small>
+
+    <a asp-action="Tests"
+       asp-route-page="@(Model.pagination.PageNum + 1)"
+       asp-route-sortOrder="@ViewData["CurrentSort"]"
+       class="btn text-gradient-orange2 border-orange2 @nextDisabled">
+        Next
+    </a>
+}

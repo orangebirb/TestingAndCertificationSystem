@@ -20,6 +20,8 @@ namespace TestingAndCertificationSystem.Resources
         CityAsc,
         CityDesc,
         IsActiveOnly,
-        IsNotActiveOnly
+        IsNotActiveOnly,
+        EmailAsc,
+        EmailDesc
     }
 }

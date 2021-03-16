@@ -9,17 +9,11 @@ namespace TestingAndCertificationSystem
 {
     public class Choice
     {
-        public Choice()
-        {
-            QuestionAnswer = new HashSet<QuestionAnswer>();
-        }
-
         public int Id { get; set; }
         public int QuestionId { get; set; }
         public string Text { get; set; }
         public double Points { get; set; }
 
         public virtual Question Question { get; set; }
-        public virtual ICollection<QuestionAnswer> QuestionAnswer { get; set; }
     }
 }

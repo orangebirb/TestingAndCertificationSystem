@@ -110,17 +110,11 @@ namespace TestingAndCertificationSystem
 
             modelBuilder.Entity<QuestionAnswer>(entity =>
             {
-                entity.HasOne(d => d.Choice)
-                    .WithMany(p => p.QuestionAnswer)
-                    .HasForeignKey(d => d.ChoiceId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__QuestionA__Choic__23F3538A");
-
                 entity.HasOne(d => d.Question)
                     .WithMany(p => p.QuestionAnswer)
                     .HasForeignKey(d => d.QuestionId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__QuestionA__Quest__25DB9BFC");
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .HasConstraintName("FK__QuestionA__Quest__4FD1D5C8");
 
                 entity.HasOne(d => d.Registration)
                     .WithMany(p => p.QuestionAnswer)
@@ -131,8 +125,7 @@ namespace TestingAndCertificationSystem
                 entity.HasOne(d => d.TestResult)
                     .WithMany(p => p.QuestionAnswer)
                     .HasForeignKey(d => d.TestResultId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__QuestionA__TestR__26CFC035");
+                    .HasConstraintName("FK__QuestionA__TestR__58671BC9");
             });
 
             modelBuilder.Entity<Registration>(entity =>
@@ -140,6 +133,12 @@ namespace TestingAndCertificationSystem
                 entity.Property(e => e.UserId)
                     .IsRequired()
                     .IsUnicode(false);
+
+                entity.HasOne(d => d.Test)
+                    .WithMany(p => p.Registration)
+                    .HasForeignKey(d => d.TestId)
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .HasConstraintName("FK__Registrat__TestI__6C6E1476");
             });
 
             modelBuilder.Entity<Test>(entity =>
@@ -183,18 +182,14 @@ namespace TestingAndCertificationSystem
 
             modelBuilder.Entity<VerifiedUsers>(entity =>
             {
-                entity.Property(e => e.Id).ValueGeneratedNever();
-
                 entity.Property(e => e.UserEmail)
                     .IsRequired()
-                    .HasMaxLength(50)
                     .IsUnicode(false);
 
                 entity.HasOne(d => d.Test)
                     .WithMany(p => p.VerifiedUsers)
                     .HasForeignKey(d => d.TestId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__VerifiedU__TestI__1F63A897");
+                    .HasConstraintName("FK__VerifiedU__TestI__1940BAED");
             });
 
             OnModelCreatingPartial(modelBuilder);

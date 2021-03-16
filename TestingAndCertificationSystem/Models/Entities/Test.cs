@@ -12,6 +12,7 @@ namespace TestingAndCertificationSystem
         public Test()
         {
             Question = new HashSet<Question>();
+            Registration = new HashSet<Registration>();
             VerifiedUsers = new HashSet<VerifiedUsers>();
         }
 
@@ -34,6 +35,7 @@ namespace TestingAndCertificationSystem
 
         public virtual AdditionalTask AdditionalTask { get; set; }
         public virtual ICollection<Question> Question { get; set; }
+        public virtual ICollection<Registration> Registration { get; set; }
         public virtual ICollection<VerifiedUsers> VerifiedUsers { get; set; }
     }
 }

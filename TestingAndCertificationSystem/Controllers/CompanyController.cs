@@ -66,7 +66,6 @@ namespace TestingAndCertificationSystem.Controllers
             return View(paginationModerators);
         }
 
-        [HttpGet]
         public IActionResult SearchModerators(string userSearch, SortingOrders sortOrder, int page = 1)
         {
             int pageSize = 10;

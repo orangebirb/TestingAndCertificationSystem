@@ -34,9 +34,17 @@ else
 
             <tr>
                 <td>
-                    <form asp-controller="Tests" asp-action="Instruction" asp-route-testId="@registration.TestId" method="post">
-                        <button type="submit" class="btn btn-sm btn-outline-info"> Test page </button>
-                    </form>
+                    @if (registration.TestId != null)
+                    {
+                        <form asp-controller="Tests" asp-action="Instruction" asp-route-testId="@registration.TestId" method="post">
+                            <button type="submit" class="btn btn-sm btn-outline-info">Test page</button>
+                        </form>
+                    }
+                    else
+                    {
+                        <button class="btn btn-sm btn-outline-danger" disabled>Test deleted</button>
+                    }
+
                 </td>
                 <td>
                     @registration.EntryTime

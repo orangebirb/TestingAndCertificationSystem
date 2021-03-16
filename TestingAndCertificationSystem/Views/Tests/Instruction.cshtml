@@ -60,9 +60,20 @@
             {
                 @if (!User.IsInRole(Roles.CompanyAdmin))
                 {
-                    <form asp-controller="Tests" asp-action="Registration" asp-route-testId="@testid">
-                        <button type="submit" class="btn btn-sm btn-info">Start test</button>
-                    </form>
+                    @if (ViewBag.UserHaveAccess == null || ViewBag.UserHaveAccess == true)
+                    {
+                        <form asp-controller="Tests" asp-action="Registration" asp-route-testId="@testid">
+                            <button type="submit" class="btn btn-sm btn-info">Start test</button>
+                        </form>
+                    }
+                    else
+                    {
+                        <div class="alert alert-danger" role="alert">
+                            You don't have access to this private test. Contact test author for details.
+                        </div>
+                    }
+
+                    
                 }
             }
             else

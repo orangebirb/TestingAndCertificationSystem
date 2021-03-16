@@ -90,11 +90,13 @@ namespace TestingAndCertificationSystem.Controllers
             return View(paginationTests);
         }
 
+
         [Authorize(Roles = Roles.CompanyAdmin + ", " + Roles.CompanyModerator)]
         public IActionResult CreateTest()
         {
             return View();
         }
+
 
         [Authorize(Roles = Roles.CompanyAdmin + ", " + Roles.CompanyModerator)]
         [HttpPost]
@@ -125,6 +127,7 @@ namespace TestingAndCertificationSystem.Controllers
             return View();
         }
 
+
         [Authorize(Roles = Roles.CompanyAdmin + ", " + Roles.CompanyModerator)]
         public IActionResult EditTest(int testId)
         {
@@ -132,6 +135,7 @@ namespace TestingAndCertificationSystem.Controllers
 
             return View(testToEdit);
         }
+
 
         [Authorize(Roles = Roles.CompanyAdmin + ", " + Roles.CompanyModerator)]
         [HttpPost]
@@ -155,6 +159,7 @@ namespace TestingAndCertificationSystem.Controllers
 
             return View();
         }
+
 
         [Authorize(Roles = Roles.CompanyAdmin + ", " + Roles.CompanyModerator)]
         [HttpPost]
@@ -183,6 +188,7 @@ namespace TestingAndCertificationSystem.Controllers
             return RedirectToAction("Tests");
         }
 
+
         [Authorize(Roles = Roles.CompanyAdmin + ", " + Roles.CompanyModerator)]
         [HttpPost]
         public async Task<IActionResult> ChangeActivityStatusTest(int testId, DateTime endingDateTime)
@@ -191,31 +197,38 @@ namespace TestingAndCertificationSystem.Controllers
 
             if (testToEdit != null)
             {
-
-                if (testToEdit.IsActive == true)
+                if (_context.Question.Where(x => x.TestId == testToEdit.Id).Count() == 0)
                 {
-                    testToEdit.IsActive = false;
+                    TempData["ErrorMessage"] = "You can't activate test without any questions";
                 }
                 else
                 {
-                    if (endingDateTime > DateTime.Now)
+                    if (testToEdit.IsActive == true)
                     {
-                        testToEdit.TokenEndTime = endingDateTime;
-                        testToEdit.TokenStartTime = DateTime.Now;
-
-                        testToEdit.IsActive = true;
+                        testToEdit.IsActive = false;
                     }
                     else
                     {
-                        TempData["ErrorMessage"] = "Choose correct date";
-                    }
-                }
+                        if (endingDateTime > DateTime.Now)
+                        {
+                            testToEdit.TokenEndTime = endingDateTime;
+                            testToEdit.TokenStartTime = DateTime.Now;
 
-                await _context.SaveChangesAsync();
+                            testToEdit.IsActive = true;
+                        }
+                        else
+                        {
+                            TempData["ErrorMessage"] = "Choose correct date";
+                        }
+                    }
+
+                    await _context.SaveChangesAsync();
+                }
             }
 
             return RedirectToAction("TestInfopage", new { testId });
         }
+
 
         [Authorize(Roles = Roles.CompanyAdmin + ", " + Roles.CompanyModerator)]
         public IActionResult TestInfopage(int testId)
@@ -236,26 +249,34 @@ namespace TestingAndCertificationSystem.Controllers
                     question.Choice = _context.Choice.Where(x => x.QuestionId == question.Id).ToList();
                 }
 
+                ViewBag.VerifiedUsersCount = _context.VerifiedUsers.Where(x => x.TestId == test.Id).Count();
+
                 return View(test);
             }
 
             return RedirectToAction("Error");
         }
 
+
         [AllowAnonymous]
         public async Task<IActionResult> Instruction(int testId)
         {
             Test test = _context.Test.Find(testId);
 
-            UserIdentity testAuthor = await _userManager.FindByIdAsync(test.TestAuthorId);
-            var company = _context.Company.Where(x => x.Id == testAuthor.CompanyId).FirstOrDefault();
-
-            ViewBag.TestAuthor = testAuthor;
-            ViewBag.Company = company;
-
             if (test != null)
             {
+                UserIdentity testAuthor = await _userManager.FindByIdAsync(test.TestAuthorId);
+                var company = _context.Company.Where(x => x.Id == testAuthor.CompanyId).FirstOrDefault();
+
+                ViewBag.TestAuthor = testAuthor;
+                ViewBag.Company = company;
+
                 ViewBag.QuestionCount = _context.Question.Where(x => x.TestId == test.Id).Count();
+
+                if(test.IsPrivate == true)
+                {
+                    ViewBag.UserHaveAccess = (_context.VerifiedUsers.Where(x => x.UserEmail == User.Identity.Name).Count() != 0) ? true : false;
+                }
 
                 // --- temp script for deactivating test ---
                 if (DateTime.Now >= test.TokenEndTime)
@@ -511,6 +532,7 @@ namespace TestingAndCertificationSystem.Controllers
             return View("Error");
         }
 
+
         [Authorize(Roles = Roles.User + ", " + Roles.CompanyModerator)]
         [HttpPost]
         public async Task<IActionResult> SubmitAnswer(QuestionDataModel model, Guid token, int qNum)
@@ -595,6 +617,7 @@ namespace TestingAndCertificationSystem.Controllers
             return View("Error");
         }
 
+
         [Authorize(Roles = Roles.User + ", " + Roles.CompanyModerator)]
         public IActionResult Test(Guid token, int qNum)
         {
@@ -637,6 +660,7 @@ namespace TestingAndCertificationSystem.Controllers
             }
             return View("Error");
         }
+
 
         [Authorize(Roles = Roles.User + ", " + Roles.CompanyModerator)]
         public async Task<IActionResult> TestResults(Guid token)
@@ -685,9 +709,10 @@ namespace TestingAndCertificationSystem.Controllers
             return View("Error");
         }
 
+
         private void SendAdditionalTask(AdditionalTask additionalTask, string recepientEmail)
         {
-        
+
         }
 
         #endregion
@@ -741,6 +766,7 @@ namespace TestingAndCertificationSystem.Controllers
             return View(paginationTestAttempts);
         }
 
+
         [Authorize(Roles = Roles.CompanyAdmin + ", " + Roles.CompanyModerator)]
         public IActionResult AttemptInfopage(int registrationId)
         {
@@ -779,6 +805,7 @@ namespace TestingAndCertificationSystem.Controllers
 
             return View(questionAnswers);
         }
+
 
         [Authorize(Roles = Roles.User + ", " + Roles.CompanyModerator)]
         public async Task<IActionResult> UserAttempts(SortingOrders sortOrder, int page = 1)
@@ -822,9 +849,81 @@ namespace TestingAndCertificationSystem.Controllers
             ViewBag.PageCount = (count + pageSize - 1) / pageSize;
 
             return View(paginationTestAttempts);
-  
+
         }
 
+        #endregion
+
+        #region test privacy
+
+        public async Task<IActionResult> VerifiedUsers(int testId, SortingOrders sortOrder, int page = 1)
+        {
+            int pageSize = 10;
+
+            ViewData["CurrentSort"] = sortOrder;
+
+            ViewData["EmailSortParm"] = sortOrder == SortingOrders.EmailAsc ? SortingOrders.EmailDesc : SortingOrders.EmailAsc;
+
+            var verifiedUsers = _context.VerifiedUsers.Where(x => x.TestId == testId);
+
+            verifiedUsers = sortOrder switch
+            {
+                SortingOrders.EmailAsc => verifiedUsers.OrderBy(x => x.UserEmail),
+                SortingOrders.EmailDesc => verifiedUsers.OrderByDescending(x => x.UserEmail),
+                _ => verifiedUsers
+            };
+
+            var count = await verifiedUsers.CountAsync();
+            var items = await verifiedUsers.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
+
+            Pagination pagination = new Pagination(count, page, pageSize);
+            PaginationGeneric<VerifiedUsers> paginationVerifiedUsers = new PaginationGeneric<VerifiedUsers>
+            {
+                pagination = pagination,
+                source = items
+            };
+
+            ViewBag.Page = page;
+            ViewBag.PageCount = (count + pageSize - 1) / pageSize;
+
+            return View(paginationVerifiedUsers);
+        }
+
+        public async Task<IActionResult> AddUserToVL(int testId, string userEmail)
+        {
+            var test = _context.Test.Find(testId);
+
+            if(test != null)
+            {
+                VerifiedUsers newVerifiedUser = new VerifiedUsers()
+                {
+                    TestId = testId,
+                    UserEmail = userEmail
+                };
+
+                _context.VerifiedUsers.Add(newVerifiedUser);
+
+                await _context.SaveChangesAsync();
+            }
+
+            return RedirectToAction("VerifiedUsers", new { testId });
+        }
+
+        public async Task<IActionResult> RemoveUserFromVL(int testId, string userEmail)
+        {
+            var test = _context.Test.Find(testId);
+
+            if (test != null)
+            {
+                var user = _context.VerifiedUsers.Where(x => x.UserEmail == userEmail).FirstOrDefault();
+
+                _context.VerifiedUsers.Remove(user);
+
+                await _context.SaveChangesAsync();
+            }
+
+            return RedirectToAction("VerifiedUsers", new { testId });
+        }
 
         #endregion
     }

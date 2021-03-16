@@ -13,7 +13,7 @@
                 <a class="nav-link active" id="nav-info-tab" data-toggle="pill" href="#nav-info" role="tab" aria-controls="nav-info" aria-selected="true">Test Information</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" id="nav-instruction-tab" data-toggle="pill" href="#nav-instruction" role="tab" aria-controls="nav-instruction" aria-selected="false">Instruction</a>
+                <a class="nav-link" id="nav-instruction-tab" data-toggle="pill" href="#nav-instruction" role="tab" aria-controls="nav-instruction" aria-selected="false">Instruction text</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" id="nav-task-tab" data-toggle="pill" href="#nav-task" role="tab" aria-controls="nav-task" aria-selected="false">Additional task</a>
@@ -27,37 +27,37 @@
                     <button type="submit" class="btn btn-sm btn-danger"> INSTRUCTION </button>
                 </form>
 
-                <a class="btn btn-success" asp-area="" asp-controller="Tests" asp-action="EditTest" asp-route-testId="@Model.Id">Edit test</a>
-                
-                <button type="button" class="btn btn-sm btn-danger" data-toggle="modal" data-target="#Model_@Model.Id">
-                    Remove
-                </button>
-
-                <div class="modal fade" id="Model_@Model.Id" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title orange2" id="exampleModalLabel">Delete test</h5>
-                            </div>
-                            <div class="modal-body">
-                                Do you want to delete <b class="text-gradient-orange1">@Model.Name</b> test?
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Close</button>
-                                <form asp-controller="Tests" asp-action="DeleteTest" asp-route-testId="@Model.Id" method="post">
-                                    <button type="submit" class="btn btn-sm btn-danger"> Delete test </button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
                 <ul class="list-group list-group-flush">
                     <li class="list-group-item">@Model.Description</li>
-                    <li class="list-group-item"><b>Time allowed: </b>@Model.DurationInMinutes</li>
-                    <li class="list-group-item"><b>Total questions: </b>@Model.Question.Count</li>
+                    <li class="list-group-item"><b>Time allowed: </b>@Model.DurationInMinutes min</li>
+                    <li class="list-group-item">
+                        <div class="row">
+                            <div>
+                                <b>&nbsp;&nbsp;&nbsp;Total questions: </b>@Model.Question.Count
+                            </div>
+                            <div style="margin-left:auto">
+                                <a class="btn btn-sm btn-success" asp-controller="Tests" asp-action="CreateQuestion" asp-route-testId=@Model.Id>Add questions</a>
+                            </div>
+                        </div>
+                    </li>
                     <li class="list-group-item"><b>Certificate allowed: </b>@Model.Certificate</li>
-                    <li class="list-group-item"><b>Is private: </b>@Model.IsPrivate</li>
+                    <li class="list-group-item">
+                        @if (Model.IsPrivate == true)
+                        {
+                            <div class="row">
+                                <div>
+                                    <b>&nbsp;&nbsp;&nbsp;Test is private</b>
+                                </div>
+                                <div style="margin-left:auto">
+                                    <a class="btn btn-sm btn-info" asp-area="" asp-controller="Tests" asp-action="VerifiedUsers" asp-route-testId="@Model.Id">Verified users : @ViewBag.VerifiedUsersCount</a>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <span><b>Test is public</b></span>
+                        }
+                    </li>
                     <li class="list-group-item">
                         @{
                             if (Model.IsActive == true)
@@ -96,6 +96,37 @@
                                 </form>
                             }
                         }
+                    </li>
+                    <li class="list-group-item">
+                        <div class="row">
+                            <div>
+                                <a class="btn btn-success" asp-area="" asp-controller="Tests" asp-action="EditTest" asp-route-testId="@Model.Id">Edit test</a>
+                            </div>
+                            <div style="margin-left:auto">
+                                <button type="button" class="btn btn-sm btn-danger" data-toggle="modal" data-target="#Model_@Model.Id">
+                                    Remove
+                                </button>
+
+                                <div class="modal fade" id="Model_@Model.Id" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title orange2" id="exampleModalLabel">Delete test</h5>
+                                            </div>
+                                            <div class="modal-body">
+                                                Do you want to delete <b class="text-gradient-orange1">@Model.Name</b> test?
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Close</button>
+                                                <form asp-controller="Tests" asp-action="DeleteTest" asp-route-testId="@Model.Id" method="post">
+                                                    <button type="submit" class="btn btn-sm btn-danger"> Delete test </button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </li>
                 </ul>
             </div>
@@ -136,9 +167,6 @@
 </div>
 
 <br />
-
-<a class="btn btn-success" asp-controller="Tests" asp-action="CreateQuestion" asp-route-testId=@Model.Id>Add questions</a>
-
 <br />
 <br />
 

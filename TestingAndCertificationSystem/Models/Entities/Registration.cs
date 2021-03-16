@@ -17,11 +17,12 @@ namespace TestingAndCertificationSystem
 
         public int Id { get; set; }
         public string UserId { get; set; }
-        public int TestId { get; set; }
+        public int? TestId { get; set; }
         public Guid Token { get; set; }
         public DateTime EntryTime { get; set; }
         public DateTime EndingTime { get; set; }
 
+        public virtual Test Test { get; set; }
         public virtual ICollection<QuestionAnswer> QuestionAnswer { get; set; }
         public virtual ICollection<TestResults> TestResults { get; set; }
     }
