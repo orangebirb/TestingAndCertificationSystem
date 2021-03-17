@@ -110,11 +110,11 @@
                     <li class="list-group-item">
                         <div class="row">
                             <div>
-                                <a class="btn btn-success" asp-area="" asp-controller="Tests" asp-action="EditTest" asp-route-testId="@Model.Id">Edit test</a>
+                                <a class="btn btn-sm btn-success" asp-area="" asp-controller="Tests" asp-action="EditTest" asp-route-testId="@Model.Id">Edit test</a>
                             </div>
                             <div style="margin-left:auto">
                                 <button type="button" class="btn btn-sm btn-danger" data-toggle="modal" data-target="#Model_@Model.Id">
-                                    Remove
+                                    Delete test
                                 </button>
 
                                 <div class="modal fade" id="Model_@Model.Id" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -150,28 +150,49 @@
             <div class="tab-pane fade" id="nav-task" role="tabpanel" aria-labelledby="nav-task-tab">
                 @if (Model.AdditionalTask == null)
                 {
+                    <h4 class="text-gradient-orange1"><b>This test has no additional task</b></h4>
                     <br />
-                    <h4><b>This test has no additional task</b></h4>
-                    <br />
-                    <br /><a class="btn btn-success" asp-controller="Tests" asp-action="CreateAdditionalTask" asp-route-testId=@Model.Id>Create task</a>
+                    <a class="btn btn-sm btn-success" asp-controller="Tests" asp-action="CreateAdditionalTask" asp-route-testId=@Model.Id>Create additional task</a>
                 }
                 else
                 {
-                    <br />
-                    <br />
-                    @Model.AdditionalTask.Name
-                    <br />@Model.AdditionalTask.RecipientEmail
-                    <br />@Model.AdditionalTask.Text
-                    <br />@Model.AdditionalTask.ExpirationDate
-                    <br />
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item"><span class="text-gradient-orange2 font-weight-bold">Name: </span>@Model.AdditionalTask.Name</li>
+                        <li class="list-group-item"><span class="text-gradient-orange2 font-weight-bold">Expiration date: </span>@Model.AdditionalTask.ExpirationDate</li>
+                        <li class="list-group-item"><span class="text-gradient-orange2 font-weight-bold">Specified recipient address: </span>@Model.AdditionalTask.RecipientEmail</li>
+                        <li class="list-group-item"><span class="text-gradient-orange2 font-weight-bold">Task: </span>@Model.AdditionalTask.Text</li>
+                        <li class="list-group-item">
+                            <div class="row">
+                                <div><a class="btn btn-sm btn-success" asp-area="" asp-controller="Tests" asp-action="EditAdditionalTask" asp-route-taskId="@Model.AdditionalTaskId">Edit additional task</a></div>
+                                <div style="margin-left:auto">
+                                    <button type="button" class="btn btn-sm btn-danger" data-toggle="modal" data-target="#Model_AdditionalTask">
+                                        Delete additional task
+                                    </button>
 
-                    <br /><a class="btn btn-success" asp-area="" asp-controller="Tests" asp-action="EditAdditionalTask" asp-route-taskId="@Model.AdditionalTaskId">Edit additional task</a>
-
-                    <form asp-controller="Tests" asp-action="DeleteAdditionalTask" asp-route-taskId="@Model.AdditionalTask.Id" , asp-route-testId="@Model.Id" method="post">
-                        <button type="submit" class="btn btn-sm btn-danger">Delete</button>
-                    </form>
+                                    <div class="modal fade" id="Model_AdditionalTask" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title orange2" id="exampleModalLabel">Delete additional task</h5>
+                                                </div>
+                                                <div class="modal-body">
+                                                    Do you want to remove this additional task from test?
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Close</button>
+                                                    <form asp-controller="Tests" asp-action="DeleteAdditionalTask" asp-route-taskId="@Model.AdditionalTask.Id" , asp-route-testId="@Model.Id" method="post">
+                                                        <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>       
                 }
-            </div>
+                </div>
         </div>
     </div>
 </div>

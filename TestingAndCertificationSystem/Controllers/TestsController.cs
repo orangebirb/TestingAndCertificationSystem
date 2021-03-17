@@ -308,6 +308,13 @@ namespace TestingAndCertificationSystem.Controllers
 
             if (ModelState.IsValid && testId != 0)
             {
+                //if question text = null || not created any options || text in all this options = null
+                if(model.Question.Text == null || model.Choices == null || model.Choices.Any(x => x.Choice.Text == null))
+                {
+                    ViewBag.ErrorMessage = "You can't add a question without text or any options";
+                    return View();
+                }
+
                 int totalCount = model.Choices.Count(x => x.Choice.Text != null); //amount of choices
                 int trueAnswCount = model.Choices.Count(x => x.IsChecked == true && x.Choice.Text != null); //marked as true choices
 
@@ -807,6 +814,7 @@ namespace TestingAndCertificationSystem.Controllers
             ViewBag.requiredMark = _context.Test.Where(x => x.Id == registration.TestId).FirstOrDefault().PassingMarkInPercents;
             ViewBag.pointsMark = questionAnswers.GroupBy(x => x.QuestionId).Select(y => y.First()).Sum(x => x.TotalMark);
             ViewBag.pointsTotal = questionAnswers.GroupBy(x => x.QuestionId).Select(y => y.First()).Count();
+            ViewBag.testId = registration.TestId;
 
             return View(questionAnswers);
         }

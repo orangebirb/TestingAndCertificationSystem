@@ -8,8 +8,18 @@
     var i = 0;
 }
 
-<h2 class="text-gradient-orange2">Test attempt information</h2>
-<br />
+<div class="col-md-10">
+    <h2 class="text-gradient-orange2">Test attempt infopage</h2>
+    &nbsp;&nbsp;&nbsp;&nbsp;
+    <i class="fas fa-caret-left orange1"></i>
+    <a class="btn-link orange1" asp-controller="Tests" asp-action="TestAttempts" asp-route-testId="@ViewBag.testId">
+        Back to test attempts
+    </a>
+    <br />
+    <br />
+</div>
+
+
 <div class="card border-orange2">
     <div class="card-body">
         <div class="row">

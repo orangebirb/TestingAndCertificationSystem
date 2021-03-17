@@ -1,106 +1,125 @@
 ﻿@model TestingAndCertificationSystem.ViewModels.QuestionDataModel
 
-@{ 
+@{
     var testid = Context.Request.Query["testId"];
 }
 
-<h2>TEST ID - @testid</h2>
-    <div class="row">
-        <div class="col-md-10">
-            <form asp-action="CreateQuestion">
-                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+<div class="col-md-10">
+    <h2 class="text-gradient-orange2">Add new question</h2>
+    &nbsp;&nbsp;&nbsp;&nbsp;
+    <i class="fas fa-caret-left orange1"></i>
+    <a class="btn-link orange1" asp-controller="Tests" asp-action="TestInfopage" asp-route-testId="@testid">
+        Back to test information
+    </a>
+    <br />
+    <br />
+</div>
 
-                <div class="form-group">
-                    <label asp-for="Question.Text">Question text</label>
-                    <textarea class="form-control" type="text" asp-for="Question.Text" rows="3" placeholder="Enter question text here"></textarea>
-                </div>
+<div class="row">
+    <div class="col-md-10">
 
-                <div class="form-group">
-                    <input id="AddBtn" type="button" class="btn btn-success" value="New option" onclick="AddButton()" />
-                </div>
+        @if (ViewBag.ErrorMessage != null)
+        {
+            <div class="alert alert-danger" role="alert">
+                @ViewBag.ErrorMessage
+            </div>
+        }
 
-                <div id="TextBoxContainer">
-                    
-                </div>
+        <form asp-action="CreateQuestion">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-                <div class="form-group">
-                    <input id="CreateBtn" type="submit" value="Create" class="btn btn-primary" asp-route-testId="@testid"/>
-                </div>
+            <div class="form-group">
+                <textarea class="form-control" type="text" asp-for="Question.Text" rows="3" placeholder="Question text"></textarea>
+            </div>
 
-            </form>
-        </div>
+            <div class="form-group">
+                <button id="AddBtn" type="button" class="btn btn-outline-warning" onclick="AddButton()">
+                    <i class="fas fa-plus orange2"></i>
+                </button>
+            </div>
+
+            <div id="TextBoxContainer">
+
+            </div>
+
+            <div class="form-group">
+                <input id="CreateBtn" type="submit" value="Create" class="btn btn-success" asp-route-testId="@testid" />
+            </div>
+
+        </form>
     </div>
+</div>
 
-    <div hidden="hidden">
-        <div id="choiceInput">
-            <div class="input-group mb-3">
-                <div class="input-group-prepend">
-                    <div class="input-group-text">
-                        <input type="checkbox" id="optionInput" value="true">
-                    </div>
+<div hidden="hidden">
+    <div id="choiceInput">
+        <div class="input-group mb-3">
+            <div class="input-group-prepend">
+                <div class="input-group-text">
+                    <input type="checkbox" id="optionInput" value="true">
                 </div>
+            </div>
 
-                <input id="input" type="text" class="form-control" placeholder="New option">
+            <input id="input" type="text" class="form-control" placeholder="New option">
 
-                <div class="input-group-append">
-                    <button id="RemoveBtn" class="btn btn-outline-secondary" type="button" onclick="RemoveButton(this)">Remove option</button>
-                </div>
+            <div class="input-group-append">
+                <button id="RemoveBtn" class="btn btn-outline-secondary" type="button" onclick="RemoveButton(this)">Remove option</button>
             </div>
         </div>
     </div>
-    
-    @section scripts
+</div>
+
+@section scripts
 {
-        <script>
-            var i = 0;
+    <script>
+        var i = 0;
 
-            function AddButton () {
-                var choiceForm = $("#choiceInput").clone();
-                choiceForm.appendTo("#TextBoxContainer");
+        function AddButton() {
+            var choiceForm = $("#choiceInput").clone();
+            choiceForm.appendTo("#TextBoxContainer");
 
-                choiceForm.attr("id", i).attr("name", "divInput");
-                choiceForm.find("[id^=input]").attr("name", "Choices[" + i + "].Choice.Text").attr("value", "");
-                choiceForm.find("[type^=checkbox]").attr("name", "Choices[" + i + "].IsChecked");
-         
-                i++;
+            choiceForm.attr("id", i).attr("name", "divInput");
+            choiceForm.find("[id^=input]").attr("name", "Choices[" + i + "].Choice.Text").attr("value", "");
+            choiceForm.find("[type^=checkbox]").attr("name", "Choices[" + i + "].IsChecked");
+
+            i++;
+        }
+
+        function RemoveButton(elemId) {
+            var currElement = document.getElementById(elemId.parentNode.parentNode.parentNode.id);
+
+            if (currElement != null) {
+                currElement.remove();
             }
 
-            function RemoveButton(elemId) {
-                var currElement = document.getElementById(elemId.parentNode.parentNode.parentNode.id);
+            //normalising id
 
-                if (currElement != null) {
-                    currElement.remove(); 
-                }
-                
-                //normalising id
+            var ds = document.getElementsByName('divInput')
 
-                var ds = document.getElementsByName('divInput')
+            var id = parseInt(elemId.parentNode.parentNode.parentNode.id);
 
-                var id = parseInt(elemId.parentNode.parentNode.parentNode.id);
+            for (var x = 0; x < ds.length; x++) {
 
-                for (var x = 0; x < ds.length; x++) {
+                if (ds[x].id > elemId.parentNode.parentNode.parentNode.id) {
 
-                    if (ds[x].id > elemId.parentNode.parentNode.parentNode.id) {
-                      
-                        var inputs = ds[x].getElementsByTagName('input'); //all inputs in current div
+                    var inputs = ds[x].getElementsByTagName('input'); //all inputs in current div
 
-                        ds[x].id = id; //changes entire div id
+                    ds[x].id = id; //changes entire div id
 
-                        for (var j = 0; j < inputs.length; j++) //changes inputs id & name
-                        {
-                            if (inputs[j].name != null && inputs[j].type == 'text')
-                                inputs[j].name = "Choices[" + id + "].Choice.Text";
+                    for (var j = 0; j < inputs.length; j++) //changes inputs id & name
+                    {
+                        if (inputs[j].name != null && inputs[j].type == 'text')
+                            inputs[j].name = "Choices[" + id + "].Choice.Text";
 
-                            else if (inputs[j].name != null && inputs[j].type == 'checkbox')
-                                inputs[j].name = "Choices[" + id + "].IsChecked";
-                        } 
-                        
-                        id++;
+                        else if (inputs[j].name != null && inputs[j].type == 'checkbox')
+                            inputs[j].name = "Choices[" + id + "].IsChecked";
                     }
-                } 
 
-                i--;
+                    id++;
+                }
             }
 
-        </script>
-    }
+            i--;
+        }
+
+    </script>
+}

@@ -6,89 +6,107 @@
     var testid = Context.Request.Query["testId"];
 }
 
-<div class="container">
-    <div class="row">
-        <div class="col-md-6">
-            <h2>@Model.Name</h2>
-            @Model.Description
-        </div>
-        <div class="col-md-6">
-            <br />
-            Test Duration: @Model.DurationInMinutes minutes
-            <br />Questions in test: @ViewBag.QuestionCount
-            @if (Model.IsActive == true)
-            {
-                <br /><div>Test will be closed at @Model.TokenEndTime</div>
-            }
-
-        </div>
-    </div>
-    <br /><br />
-
-    <div class="row">
-        <div class="col-md-12">
-            <div class="alert alert-info" role="alert">
-                <div class="row">
+    <div class="col-md-10">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h2 class="text-gradient-orange2">@Model.Name</h2>
+                    <span class="text-muted">@Model.Description</span>
                 </div>
-                Contact information:
-                <div>
-                    <br /><b>Email: </b>@ViewBag.TestAuthor.Email
-                    <br />@ViewBag.TestAuthor.FirstName @ViewBag.TestAuthor.LastName
-                </div>
-                <div>
-                    <br /><b>Company name: </b>@ViewBag.Company.FullName
-                    <br /><b>Description: </b>@ViewBag.Company.Description
-                    <br /><b>Url: </b>@ViewBag.Company.WebsiteUrl
+                <div class="col-md-6">
+                    <span class="font-weight-bold text-muted">Test Duration: </span>@Model.DurationInMinutes minutes
+                    <br /><span class="font-weight-bold text-muted">Questions in test: </span>@ViewBag.QuestionCount
+                    @if (Model.IsActive == true)
+                    {
+                        <br /><div><span class="font-weight-bold text-muted">Test will be closed at </span>@Model.TokenEndTime</div>
+                    }
+
                 </div>
             </div>
-            <br />
-            <br />
+            <br /><br />
 
-        </div>
-    </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="alert alert-info" role="alert">
+                        <div class="row">
+                        </div>
+                        Contact information:
+                        <div>
+                            <br /><b>Email: </b>@ViewBag.TestAuthor.Email
+                            <br />@ViewBag.TestAuthor.FirstName @ViewBag.TestAuthor.LastName
+                        </div>
+                        <div>
+                            <br /><b>Company name: </b>@ViewBag.Company.FullName
+                            <br /><b>Description: </b>@ViewBag.Company.Description
+                            <br /><b>Url: </b>@ViewBag.Company.WebsiteUrl
+                        </div>
+                    </div>
+                    <br />
 
-    @if (Model.IsActive == true)
-    {
-        <div>
-            <h2>Before you begin, please read the following instructions carefully</h2>
-            <br />
-            @Model.Instruction
+                </div>
+            </div>
 
-            <br />
-            <br />
-            @if (User.Identity.IsAuthenticated)
+            @if (Model.IsActive == true)
             {
-                @if (!User.IsInRole(Roles.CompanyAdmin))
-                {
-                    @if (ViewBag.UserHaveAccess == null || ViewBag.UserHaveAccess == true)
+                <div>
+                    <h3 class="text-gradient-orange1">Read the following instruction before starting your attempt</h3>
+                    <br />
+                    @Model.Instruction
+
+                    <br />
+                    <br />
+                    @if (User.Identity.IsAuthenticated)
                     {
-                        <form asp-controller="Tests" asp-action="Registration" asp-route-testId="@testid">
-                            <button type="submit" class="btn btn-sm btn-info">Start test</button>
-                        </form>
+                        @if (!User.IsInRole(Roles.CompanyAdmin))
+                        {
+                            @if (ViewBag.UserHaveAccess == null || ViewBag.UserHaveAccess == true)
+                            {
+                                <button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#Model_start">
+                                    Start test
+                                </button>
+                                <div class="modal fade" id="Model_start" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title orange2" id="exampleModalLabel">@Model.Name</h5>
+                                            </div>
+                                            <div class="modal-body">
+                                                Do you want to start test?
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Close</button>
+                                                <form asp-controller="Tests" asp-action="Registration" asp-route-testId="@testid">
+                                                    <button type="submit" class="btn btn-sm btn-success">Yes, start test</button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="alert alert-danger" role="alert">
+                                    You don't have access to this private test. Contact test author for details.
+                                </div>
+                            }
+
+
+                        }
                     }
                     else
                     {
-                        <div class="alert alert-danger" role="alert">
-                            You don't have access to this private test. Contact test author for details.
+                        <div class="alert alert-info" role="alert">
+                            You have to login first. If you don`t have an account yet - register.
                         </div>
                     }
-
-                    
-                }
+                </div>
             }
             else
             {
-                <div class="alert alert-info" role="alert">
-                    You have to login first. If you don`t have an account yet - register.
+                <div class="alert alert-danger" role="alert">
+                    This test is closed. Contact test author for more information.
                 </div>
             }
-        </div>
-    }
-    else
-    {
-        <div class="alert alert-danger" role="alert">
-            This test is closed. Contact test author for more information.
-        </div>
-    }
 
-</div>
+        </div>
+    </div>

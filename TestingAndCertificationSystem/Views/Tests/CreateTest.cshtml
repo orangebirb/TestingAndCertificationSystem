@@ -12,41 +12,41 @@
     </a>
     <br />
     <br />
+
+    <div asp-validation-summary="All" class="alert-danger"></div>
+
+    <form asp-action="CreateTest" asp-controller="Tests">
+        <div class="form-group">
+            <label class="control-label text-gradient-orange2 font-weight-bold">Name</label>
+            <input type="text" asp-for="Name" class="form-control" />
+        </div>
+        <div class="form-group">
+            <label class="control-label text-gradient-orange2 font-weight-bold">Short description</label>
+            <input type="text" asp-for="Description" class="form-control" />
+        </div>
+        <div class="form-group">
+            <label class="control-label text-gradient-orange2 font-weight-bold">Duration in minutes</label>
+            <input type="number" asp-for="DurationInMinutes" class="form-control" />
+        </div>
+        <div class="form-group">
+            <label class="control-label text-gradient-orange2 font-weight-bold">Instruction</label>
+            <textarea type="text" rows="3" asp-for="Instruction" class="form-control"></textarea>
+        </div>
+        <div class="form-group">
+            <label class="control-label text-gradient-orange2 font-weight-bold">Is private</label> 
+            <input type="checkbox" asp-for="IsPrivate" class="form-check" />
+        </div>
+        <div class="form-group">
+            <label class="control-label text-gradient-orange2 font-weight-bold">Certificate</label>
+            <input type="checkbox" asp-for="Certificate" class="form-check" />
+        </div>
+        <div class="form-group">
+            <label class="control-label text-gradient-orange2 font-weight-bold" asp-for="PassingMarkInPercents">Required grade (in percents)</label>
+            <input type="number" asp-for="PassingMarkInPercents" class="form-control" />
+        </div>
+
+        <div class="form-group">
+            <input type="submit" value="Create" class="btn btn-success" />
+        </div>
+    </form>
 </div>    
-
-<div asp-validation-summary="All" class="alert-danger"></div>
-
-<form asp-action="CreateTest" asp-controller="Tests">
-    <div class="form-group">
-        <label class="control-label text-gradient-orange2 font-weight-bold">Name</label>
-        <input type="text" asp-for="Name" class="form-control" />
-    </div>
-    <div class="form-group">
-        <label class="control-label text-gradient-orange2 font-weight-bold">Short description</label>
-        <input type="text" asp-for="Description" class="form-control" />
-    </div>
-    <div class="form-group">
-        <label class="control-label text-gradient-orange2 font-weight-bold">Duration in minutes</label>
-        <input type="number" asp-for="DurationInMinutes" class="form-control" />
-    </div>
-    <div class="form-group">
-        <label class="control-label text-gradient-orange2 font-weight-bold">Instruction</label>
-        <textarea type="text" rows="3" asp-for="Instruction" class="form-control"></textarea>
-    </div>
-    <div class="form-group">
-        <label class="control-label text-gradient-orange2 font-weight-bold">Is private</label> 
-        <input type="checkbox" asp-for="IsPrivate" class="form-check" />
-    </div>
-    <div class="form-group">
-        <label class="control-label text-gradient-orange2 font-weight-bold">Certificate</label>
-        <input type="checkbox" asp-for="Certificate" class="form-check" />
-    </div>
-    <div class="form-group">
-        <label class="control-label text-gradient-orange2 font-weight-bold" asp-for="PassingMarkInPercents">Required grade (in percents)</label>
-        <input type="number" asp-for="PassingMarkInPercents" class="form-control" />
-    </div>
-
-    <div class="form-group">
-        <input type="submit" value="Create" class="btn btn-primary" />
-    </div>
-</form>
