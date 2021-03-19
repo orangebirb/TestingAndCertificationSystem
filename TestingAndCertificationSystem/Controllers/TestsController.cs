@@ -397,7 +397,6 @@ namespace TestingAndCertificationSystem.Controllers
                 AdditionalTask newTask = new AdditionalTask()
                 {
                     Name = model.Name,
-                    Description = model.Description,
                     ExpirationDate = model.ExpirationDate,
                     RecipientEmail = userEmail,
                     Text = model.Text,
@@ -694,13 +693,13 @@ namespace TestingAndCertificationSystem.Controllers
                 {
                     testResult.IsPassed = true;
 
-                    if (test.AdditionalTaskId != 0)
+                    if (test.AdditionalTaskId != null)
                     {
                         var additionalTask = _context.AdditionalTask.Where(x => x.Id == test.AdditionalTaskId).FirstOrDefault();
 
                         UserIdentity currentUser = await _userManager.GetUserAsync(User);
 
-                        SendAdditionalTask(additionalTask, currentUser.Email);
+                        SendAdditionalTask(additionalTask, test.Name, currentUser);
                     }
                 }
                 else
@@ -718,9 +717,45 @@ namespace TestingAndCertificationSystem.Controllers
         }
 
 
-        private void SendAdditionalTask(AdditionalTask additionalTask, string recepientEmail)
+        private void SendAdditionalTask(AdditionalTask additionalTask, string testName, UserIdentity user)
         {
+            string path = @"D:\Diploma\smtp data.txt";
 
+            try
+            {
+                StreamReader reader = new StreamReader(path);
+
+                string smtpLogin = reader.ReadLine();
+                string smtpPassword = reader.ReadLine();
+
+                reader.Close();
+
+                MimeMessage msg = new MimeMessage();
+                msg.From.Add(new MailboxAddress("Testing and Certification system", smtpLogin));
+                msg.To.Add(new MailboxAddress(user.FirstName + ' ' + user.LastName, user.Email));
+                msg.Subject = "Additional task to test \"" + testName + "\"";
+                msg.Body = new BodyBuilder() { HtmlBody = 
+
+                    "<h3><b>" + additionalTask.Name + "</b></h3>" +
+                    "<br/>" + additionalTask.Text +
+                    "<br/><br/><b>Expiration date: </b>" + additionalTask.ExpirationDate +
+                    "<br/><b>After completing the task</b>, send a reply to the " + additionalTask.RecipientEmail + " mail"
+
+                }.ToMessageBody();
+
+                using (MailKit.Net.Smtp.SmtpClient client = new MailKit.Net.Smtp.SmtpClient())
+                {
+                    client.Connect("smtp.gmail.com", 465, true);
+                    client.Authenticate(smtpLogin, smtpPassword);
+                    client.Send(msg);
+
+                    client.Disconnect(true);
+                }
+            }
+            catch(Exception)
+            {
+                TempData["ErrorMessage"] = "Smtp error: Failed to send additional task";
+            }
         }
 
         #endregion

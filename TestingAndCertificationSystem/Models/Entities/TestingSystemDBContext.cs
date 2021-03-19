@@ -41,10 +41,6 @@ namespace TestingAndCertificationSystem
         {
             modelBuilder.Entity<AdditionalTask>(entity =>
             {
-                entity.Property(e => e.Description)
-                    .IsRequired()
-                    .IsUnicode(false);
-
                 entity.Property(e => e.Name)
                     .IsRequired()
                     .HasMaxLength(100)
@@ -76,14 +72,8 @@ namespace TestingAndCertificationSystem
             {
                 entity.Property(e => e.Description).IsUnicode(false);
 
-                entity.Property(e => e.EstablishmentDate).HasColumnType("date");
-
                 entity.Property(e => e.FullName)
                     .IsRequired()
-                    .IsUnicode(false);
-
-                entity.Property(e => e.ShortName)
-                    .HasMaxLength(50)
                     .IsUnicode(false);
 
                 entity.Property(e => e.WebsiteUrl)

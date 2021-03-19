@@ -1,17 +1,57 @@
 ﻿@model TestingAndCertificationSystem.TestResults
 
-<h2>Results</h2>
-
-<br />
-Congratulations!
-<br />You scored @Model.FinalMarkInPercents% from @ViewBag.RequiredMinMark% required
-
-@if (Model.IsPassed)
-{
-    <span><br /><br />Your info has been sent to test's author.</span>
+@{ 
+    var required = ViewBag.RequiredMinMark.ToString() + '%';
+    var scored = Model.FinalMarkInPercents.ToString() + '%';
 }
-else
-{
-    <span><br /><br />You have failpassed the test</span>
-}
-<br />
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="card">
+            <div class="card-body">
+                <div class="text-center">
+                    @if (Model.IsPassed)
+                    {
+                        <h3 class="text-gradient-orange2">Congratulations! You passed the test</h3>
+                    }
+                    else
+                    {
+                        <h3 class="text-gradient-orange2">You failed the test</h3>
+                    }
+
+                    <i class="fas fa-caret-left orange1"></i>
+                    <a class="btn-link orange1" asp-controller="Tests" asp-action="UserAttempts">
+                        Your test attempts
+                    </a>
+                    <br />
+                    <br />
+                    @if (TempData["ErrorMessage"] != null)
+                    {
+                        <div class="alert alert-danger" role="alert">
+                            @TempData["ErrorMessage"]
+                        </div>
+                    }
+                </div>
+                <p class="text-muted">Required grade:</p>
+                <div class="progress" style="height: 30px;">
+                    <div class="progress-bar bg-info" role="progressbar" style="width: @required;" aria-valuenow="@ViewBag.RequiredMinMark" aria-valuemin="0" aria-valuemax="100">@required</div>
+                </div>
+                <br />
+
+                <p class="text-muted">You scored:</p>
+                @if (Model.IsPassed)
+                {
+                    <div class="progress" style="height: 30px;">
+                        <div class="progress-bar bg-success" role="progressbar" style="width: @scored;" aria-valuenow="@Model.FinalMarkInPercents" aria-valuemin="0" aria-valuemax="100">@scored</div>
+                    </div>
+                }
+                else
+                {
+                    <div class="progress" style="height: 30px;">
+                        <div class="progress-bar bg-danger" role="progressbar" style="width: @scored;" aria-valuenow="@Model.FinalMarkInPercents" aria-valuemin="0" aria-valuemax="100">@scored</div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+

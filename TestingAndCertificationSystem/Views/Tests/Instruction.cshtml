@@ -25,31 +25,51 @@
             </div>
             <br /><br />
 
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="alert alert-info" role="alert">
-                        <div class="row">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 border-right">
+                            <span class="text-gradient-orange2" style="font-size: x-large;">
+                                <b>@ViewBag.Company.FullName</b>
+                            </span>
+                            <br /><small class="text-muted">@ViewBag.Company.Description</small>
+                            <br /><br /><i class="fas fa-globe orange2"></i>&nbsp;
+                                <a target="_blank" rel="noopener noreferrer" href="@ViewBag.Company.WebsiteUrl">@ViewBag.Company.WebsiteUrl</a>
                         </div>
-                        Contact information:
-                        <div>
-                            <br /><b>Email: </b>@ViewBag.TestAuthor.Email
-                            <br />@ViewBag.TestAuthor.FirstName @ViewBag.TestAuthor.LastName
-                        </div>
-                        <div>
-                            <br /><b>Company name: </b>@ViewBag.Company.FullName
-                            <br /><b>Description: </b>@ViewBag.Company.Description
-                            <br /><b>Url: </b>@ViewBag.Company.WebsiteUrl
+                        <div class="col-md-6">
+                            <span class="text-gradient-orange2" style="font-size: larger">
+                                <b>@ViewBag.TestAuthor.FirstName&nbsp;@ViewBag.TestAuthor.LastName</b>&nbsp;
+                                <i class="far fa-user"></i>
+                            </span>
+                            <br /><small class="text-muted">Employee of @ViewBag.Company.FullName</small>
+                            <br />
+                            <br />
+                            <table class="table table-borderless table-sm">
+                                <tbody>
+                                    <tr>
+                                        <td style="width: 1%; white-space: nowrap"><i class="fas fa-file-alt orange1"></i></td>
+                                        <td>@ViewBag.TestAuthor.Description</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="width: 1%; white-space: nowrap"><i class="fas fa-phone orange1"></i></td>
+                                        <td>@ViewBag.TestAuthor.Email</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="width: 1%; white-space: nowrap"><i class="fas fa-envelope orange1"></i></td>
+                                        <td>@ViewBag.TestAuthor.Phone</td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
-                    <br />
-
                 </div>
             </div>
+            <br />
 
             @if (Model.IsActive == true)
             {
                 <div>
-                    <h3 class="text-gradient-orange1">Read the following instruction before starting your attempt</h3>
+                    <h5 class="text-muted">Read the following instruction before starting your attempt:</h5>
                     <br />
                     @Model.Instruction
 

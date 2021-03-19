@@ -97,8 +97,6 @@ namespace TestingAndCertificationSystem.Controllers
                 Company newCompany = new Company
                 {
                     FullName = model.company.FullName,
-                    ShortName = model.company.ShortName,
-                    EstablishmentDate = model.company.EstablishmentDate,
                     Description = model.company.Description,
                     WebsiteUrl = model.company.WebsiteUrl
                 };

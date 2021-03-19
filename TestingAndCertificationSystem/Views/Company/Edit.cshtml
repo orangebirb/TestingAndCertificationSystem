@@ -3,47 +3,40 @@
     ViewBag.Title = "Edit company information";
 }
 
-<div class="col-md-10">
-    <h2 class="text-gradient-orange2">Company information</h2>
-    <br />
-</div>
+    <div class="col-md-10">
+        <h2 class="text-gradient-orange2">Company information</h2>
+        <br />
 
-@if (ViewBag.successMessage != null)
-{
-    <div class="alert alert-success" role="alert">
-        @ViewBag.successMessage
-    </div>
-}
 
-<div asp-validation-summary="ModelOnly" class="alert-danger"></div>
+        @if (ViewBag.successMessage != null)
+        {
+            <div class="alert alert-success" role="alert">
+                @ViewBag.successMessage
+            </div>
+        }
 
-<form asp-action="Edit" asp-controller="Company">
+        <div asp-validation-summary="ModelOnly" class="alert-danger"></div>
 
-    <div class="form-group" hidden>
-        <input type="text" asp-for="Id" class="form-control" readonly="readonly" />
-    </div>
+        <form asp-action="Edit" asp-controller="Company">
 
-    <div class="form-group">
-        <label class="control-label text-gradient-orange2 font-weight-bold">Full name</label>
-        <input type="text" asp-for="FullName" class="form-control" />
+            <div class="form-group" hidden>
+                <input type="text" asp-for="Id" class="form-control" readonly="readonly" />
+            </div>
+
+            <div class="form-group">
+                <label class="control-label text-gradient-orange2 font-weight-bold">Full name</label>
+                <input type="text" asp-for="FullName" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label class="control-label text-gradient-orange2 font-weight-bold">Description</label>
+                <textarea type="text" rows="3" asp-for="Description" class="form-control"></textarea>
+            </div>
+            <div class="form-group">
+                <label class="control-label text-gradient-orange2 font-weight-bold">Website url</label>
+                <input type="text" asp-for="WebsiteUrl" class="form-control" />
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-success" />
+            </div>
+        </form>
     </div>
-    <div class="form-group">
-        <label class="control-label text-gradient-orange2 font-weight-bold">Short name</label>
-        <input type="text" asp-for="ShortName" class="form-control" />
-    </div>
-    <div class="form-group">
-        <label class="control-label text-gradient-orange2 font-weight-bold">Establishment date</label>
-        <input type="date" asp-for="EstablishmentDate" class="form-control" />
-    </div>
-    <div class="form-group">
-        <label class="control-label text-gradient-orange2 font-weight-bold">Description</label>
-        <textarea type="text" rows="3" asp-for="Description" class="form-control"></textarea>
-    </div>
-    <div class="form-group">
-        <label class="control-label text-gradient-orange2 font-weight-bold">Website url</label>
-        <input type="text" asp-for="WebsiteUrl" class="form-control" />
-    </div>
-    <div class="form-group">
-        <input type="submit" value="Save" class="btn btn-primary" />
-    </div>
-</form>

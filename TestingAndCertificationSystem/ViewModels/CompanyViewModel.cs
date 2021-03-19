@@ -11,12 +11,6 @@ namespace TestingAndCertificationSystem.ViewModels
         [Required(ErrorMessage = "Company name is required")]
         public string FullName { get; set; }
 
-        [MaxLength(50)]
-        public string ShortName { get; set; }
-
-        [DataType(DataType.Date)]
-        public DateTime? EstablishmentDate { get; set; }
-
         [DataType(DataType.MultilineText)]
         public string Description { get; set; }
 
