@@ -12,6 +12,15 @@
     <br />
 </div>
 
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger" role="alert">
+        @TempData["ErrorMessage"]
+    </div>
+    <br />
+
+}
+
 <form method="post" asp-action="AddUserToVL" , asp-route-testId="@Context.Request.Query["testId"]">
     <div class="input-group">
         <input type="search" name="userEmail" class="form-control" placeholder="Enter user's email">
@@ -63,7 +72,7 @@ else
                             </div>
                         </div>
                     </div>
-                    
+
                 </td>
             </tr>
         }

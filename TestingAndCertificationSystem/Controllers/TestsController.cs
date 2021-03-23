@@ -944,15 +944,22 @@ namespace TestingAndCertificationSystem.Controllers
 
             if(test != null)
             {
-                VerifiedUsers newVerifiedUser = new VerifiedUsers()
+                if(string.IsNullOrEmpty(userEmail) || string.IsNullOrWhiteSpace(userEmail))
                 {
-                    TestId = testId,
-                    UserEmail = userEmail
-                };
+                    TempData["ErrorMessage"] = "Email can't be null or whitespace";
+                }
+                else
+                {
+                    VerifiedUsers newVerifiedUser = new VerifiedUsers()
+                    {
+                        TestId = testId,
+                        UserEmail = userEmail
+                    };
 
-                _context.VerifiedUsers.Add(newVerifiedUser);
+                    _context.VerifiedUsers.Add(newVerifiedUser);
 
-                await _context.SaveChangesAsync();
+                    await _context.SaveChangesAsync();
+                }
             }
 
             return RedirectToAction("VerifiedUsers", new { testId });
