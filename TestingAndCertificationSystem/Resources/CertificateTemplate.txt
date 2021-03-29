@@ -1,0 +1,41 @@
+<body>
+	<div style="width: 900; height: 500; margin-left: 50px; margin-top: 50px; border:1px solid #ee9617;">
+		<div style="margin-left: 20px; margin-top: 20px; margin-right: 20px;">
+			<div class="row">
+				<div class="col-md-6">
+					<table width="100%">
+					  <tr>
+						<td width="50%">
+							<h4 style="font-size: larger; color: gray">
+								Testing and certification
+							</h4>
+						</td>
+						<td width="50%" align="right">
+							<span style="font-size: larger; color: #fe5858">_companyName</span>
+							<br /><span style="color: gray">_testAuthorName</span>
+						</td>
+					  </tr>
+					</table>
+				</div>
+			</div>
+			<br />
+			<div style="text-align: center">
+				<h1 style="color: #fe5858">Certificate of completion</h1>
+				<h4 style="font-size: larger; color: gray">This certificate is presented to</h4>
+				<br />
+				<h2 style="color: #ee9617">_userName</h2>
+				<br />
+				<h5 style="font-size: large; color: gray">
+					For successfully completing 
+					<span style="color: #fe5858">
+						_testName
+					</span>
+					with score <span style="color: #fe5858">_testScore</span>
+				</h5>
+				<br />
+				<br />
+				<span style="color: gray">_date</span>
+			</div>
+		</div>
+	</div>
+</body>

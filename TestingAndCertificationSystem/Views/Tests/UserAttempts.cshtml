@@ -3,6 +3,7 @@
 
 @{
     List<TestingAndCertificationSystem.Registration> registrations = ViewBag.registrations;
+    List<TestingAndCertificationSystem.Test> tests = ViewBag.tests;
 }
 
 <div class="col-md-10">
@@ -31,6 +32,7 @@ else
         @foreach (var attempt in Model.source)
         {
             var registration = registrations.Where(x => x.Id == attempt.RegistrationId).FirstOrDefault();
+            var test = tests.Where(x => x.Id == registration.TestId).FirstOrDefault();
 
             <tr>
                 <td>
@@ -64,6 +66,12 @@ else
                         <div class="alert alert-danger" style="line-height: 30px; padding: 0px 15px;">
                             Failed
                         </div>
+                    }
+                </td>
+                <td>
+                    @if (registration.TestId != null && test.Certificate == true && attempt.IsPassed == true)
+                    {
+                        <a asp-controller="Tests" asp-action="GenerateCertificate" asp-route-resultsId="@attempt.Id" method="post"><i class="far fa-file-alt orange1 fa-2x"></i></a>
                     }
                 </td>
             </tr>

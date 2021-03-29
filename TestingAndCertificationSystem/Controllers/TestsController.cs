@@ -8,11 +8,12 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using TestingAndCertificationSystem.Models;
 using TestingAndCertificationSystem.ViewModels;
-using TestingAndCertificationSystem.Controllers;
 using MimeKit;
 using TestingAndCertificationSystem.Resources;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
+using Syncfusion.HtmlConverter;
+using Syncfusion.Pdf;
 
 namespace TestingAndCertificationSystem.Controllers
 {
@@ -539,6 +540,7 @@ namespace TestingAndCertificationSystem.Controllers
         }
 
 
+
         [Authorize(Roles = Roles.User + ", " + Roles.CompanyModerator)]
         [HttpPost]
         public async Task<IActionResult> SubmitAnswer(QuestionDataModel model, Guid token, int qNum)
@@ -625,6 +627,7 @@ namespace TestingAndCertificationSystem.Controllers
         }
 
 
+
         [Authorize(Roles = Roles.User + ", " + Roles.CompanyModerator)]
         public IActionResult Test(Guid token, int qNum)
         {
@@ -667,6 +670,7 @@ namespace TestingAndCertificationSystem.Controllers
             }
             return View("Error");
         }
+
 
 
         [Authorize(Roles = Roles.User + ", " + Roles.CompanyModerator)]
@@ -872,6 +876,8 @@ namespace TestingAndCertificationSystem.Controllers
 
             IQueryable<TestResults> userTestResults = _context.TestResults.Where(x => userRegistrations.Select(x => x.Id).Any(y => y == x.RegistrationId));
 
+            var testsInfo = _context.Test.Where(x => userRegistrations.Select(x => x.TestId).Any(y => y == x.Id)).ToList();
+
             userTestResults = sortOrder switch
             {
                 SortingOrders.MarkAsc => userTestResults.OrderBy(x => x.FinalMarkInPercents),
@@ -894,6 +900,7 @@ namespace TestingAndCertificationSystem.Controllers
             };
 
             ViewBag.registrations = userRegistrations;
+            ViewBag.tests = testsInfo;
             ViewBag.Page = page;
             ViewBag.PageCount = (count + pageSize - 1) / pageSize;
 
@@ -903,7 +910,7 @@ namespace TestingAndCertificationSystem.Controllers
 
         #endregion
 
-        #region test privacy
+        #region test privacy settings
 
         public async Task<IActionResult> VerifiedUsers(int testId, SortingOrders sortOrder, int page = 1)
         {
@@ -979,6 +986,65 @@ namespace TestingAndCertificationSystem.Controllers
             }
 
             return RedirectToAction("VerifiedUsers", new { testId });
+        }
+
+        #endregion
+
+        #region certificate
+
+        public async Task<IActionResult> GenerateCertificate(int resultsId)
+        {
+            var results = _context.TestResults.Find(resultsId);
+
+            if(results == null)
+            {
+                //err message here
+
+                return RedirectToAction("UserAttempts");
+            }
+            else
+            {
+                HtmlToPdfConverter converter = new HtmlToPdfConverter();
+
+                WebKitConverterSettings settings = new WebKitConverterSettings();
+                settings.WebKitPath = @"QtBinariesWindows";
+
+                converter.ConverterSettings = settings;
+
+                //filling template with test results data
+                #region certificate text
+
+                string str = System.IO.File.ReadAllText(@"Resources\CertificateTemplate.txt");
+
+                UserIdentity currentUser = await _userManager.GetUserAsync(User);
+                var registration = _context.Registration.Find(results.RegistrationId);
+                var test = _context.Test.Find(registration.TestId);
+                var testAuthor = _userManager.Users.Where(x => x.Id == test.TestAuthorId).FirstOrDefault();
+                var company = _context.Company.Find(testAuthor.CompanyId);
+
+                str = str.Replace("_companyName", company.FullName);
+                str = str.Replace("_testAuthorName", testAuthor.FirstName + " " + testAuthor.LastName);
+                str = str.Replace("_userName", currentUser.FirstName + " " + currentUser.LastName);
+                str = str.Replace("_testName", test.Name);
+                str = str.Replace("_testScore", results.FinalMarkInPercents.ToString() + "%");
+                str = str.Replace("_date", registration.EntryTime.ToString("dd/MM/yyyy"));
+
+                #endregion
+
+                PdfDocument document = converter.Convert(str, string.Empty);
+
+                //saving to downloads folder
+                MemoryStream memStream = new MemoryStream();
+                document.Save(memStream);
+                document.Close(true);
+
+                memStream.Position = 0;
+
+                FileStreamResult fileStreamResult = new FileStreamResult(memStream, "application/pdf");
+                fileStreamResult.FileDownloadName = "Certificate_" + currentUser.FirstName + currentUser.LastName + "_" + test.Name + ".pdf";
+
+                return fileStreamResult;
+            }
         }
 
         #endregion
