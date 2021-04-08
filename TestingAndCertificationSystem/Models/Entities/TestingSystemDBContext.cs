@@ -33,7 +33,7 @@ namespace TestingAndCertificationSystem
         {
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseSqlServer("Server=(localdb)\\mssqllocaldb;Database=TestingSystemDB;Trusted_Connection=True;");
+                optionsBuilder.UseSqlServer("Data Source=DESKTOP-LKRUCGN;Initial Catalog=TestingSystemDBd;Integrated Security=false;Trusted_Connection=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False;User ID=DiplomaUser;Password=diploma");
             }
         }
 

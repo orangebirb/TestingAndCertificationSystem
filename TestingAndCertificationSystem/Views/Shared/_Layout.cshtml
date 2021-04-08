@@ -72,7 +72,7 @@
                                     Account
                                 </a>
                                 <div class="dropdown-menu dropdown-menu-right">
-                                    <div class="dropdown-item-text"><b>@User.Identity.Name</b></div>
+                                    <a class="dropdown-item" asp-controller="Account" asp-action="Profile"><b>@User.Identity.Name</b></a>
                                     <div class="dropdown-divider"></div>
                                     <form method="post" asp-controller="Account" asp-action="Logout">
                                         <input class="dropdown-item" type="submit" value="Logout" />

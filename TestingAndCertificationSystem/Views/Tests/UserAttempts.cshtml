@@ -11,6 +11,13 @@
     <br />
 </div>
 
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger" role="alert">
+        @TempData["ErrorMessage"]
+    </div>
+}
+
 @if (Model.source.Count() == 0)
 {
     <div class="col-md-10">

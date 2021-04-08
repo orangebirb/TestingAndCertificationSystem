@@ -912,6 +912,7 @@ namespace TestingAndCertificationSystem.Controllers
 
         #region test privacy settings
 
+        [Authorize(Roles = Roles.CompanyAdmin + ", " + Roles.CompanyModerator)]
         public async Task<IActionResult> VerifiedUsers(int testId, SortingOrders sortOrder, int page = 1)
         {
             int pageSize = 10;
@@ -945,6 +946,7 @@ namespace TestingAndCertificationSystem.Controllers
             return View(paginationVerifiedUsers);
         }
 
+        [Authorize(Roles = Roles.CompanyAdmin + ", " + Roles.CompanyModerator)]
         public async Task<IActionResult> AddUserToVL(int testId, string userEmail)
         {
             var test = _context.Test.Find(testId);
@@ -972,6 +974,7 @@ namespace TestingAndCertificationSystem.Controllers
             return RedirectToAction("VerifiedUsers", new { testId });
         }
 
+        [Authorize(Roles = Roles.CompanyAdmin + ", " + Roles.CompanyModerator)]
         public async Task<IActionResult> RemoveUserFromVL(int testId, string userEmail)
         {
             var test = _context.Test.Find(testId);
@@ -998,52 +1001,61 @@ namespace TestingAndCertificationSystem.Controllers
 
             if(results == null)
             {
-                //err message here
+                TempData["ErrorMessage"] = "Failed ";
 
                 return RedirectToAction("UserAttempts");
             }
             else
             {
-                HtmlToPdfConverter converter = new HtmlToPdfConverter();
+                try
+                {
+                    HtmlToPdfConverter converter = new HtmlToPdfConverter();
 
-                WebKitConverterSettings settings = new WebKitConverterSettings();
-                settings.WebKitPath = @"QtBinariesWindows";
+                    WebKitConverterSettings settings = new WebKitConverterSettings();
+                    settings.WebKitPath = @"QtBinariesWindows";
 
-                converter.ConverterSettings = settings;
+                    converter.ConverterSettings = settings;
 
-                //filling template with test results data
-                #region certificate text
+                    //filling template with test results data
+                    #region certificate text
 
-                string str = System.IO.File.ReadAllText(@"Resources\CertificateTemplate.txt");
+                    string str = System.IO.File.ReadAllText(@"Resources\CertificateTemplate.txt");
 
-                UserIdentity currentUser = await _userManager.GetUserAsync(User);
-                var registration = _context.Registration.Find(results.RegistrationId);
-                var test = _context.Test.Find(registration.TestId);
-                var testAuthor = _userManager.Users.Where(x => x.Id == test.TestAuthorId).FirstOrDefault();
-                var company = _context.Company.Find(testAuthor.CompanyId);
+                    UserIdentity currentUser = await _userManager.GetUserAsync(User);
+                    var registration = _context.Registration.Find(results.RegistrationId);
+                    var test = _context.Test.Find(registration.TestId);
+                    var testAuthor = _userManager.Users.Where(x => x.Id == test.TestAuthorId).FirstOrDefault();
+                    var company = _context.Company.Find(testAuthor.CompanyId);
 
-                str = str.Replace("_companyName", company.FullName);
-                str = str.Replace("_testAuthorName", testAuthor.FirstName + " " + testAuthor.LastName);
-                str = str.Replace("_userName", currentUser.FirstName + " " + currentUser.LastName);
-                str = str.Replace("_testName", test.Name);
-                str = str.Replace("_testScore", results.FinalMarkInPercents.ToString() + "%");
-                str = str.Replace("_date", registration.EntryTime.ToString("dd/MM/yyyy"));
+                    str = str.Replace("_companyName", company.FullName);
+                    str = str.Replace("_testAuthorName", testAuthor.FirstName + " " + testAuthor.LastName);
+                    str = str.Replace("_userName", currentUser.FirstName + " " + currentUser.LastName);
+                    str = str.Replace("_testName", test.Name);
+                    str = str.Replace("_testScore", results.FinalMarkInPercents.ToString() + "%");
+                    str = str.Replace("_date", registration.EntryTime.ToString("dd/MM/yyyy"));
 
-                #endregion
+                    #endregion
 
-                PdfDocument document = converter.Convert(str, string.Empty);
+                    PdfDocument document = converter.Convert(str, string.Empty);
 
-                //saving to downloads folder
-                MemoryStream memStream = new MemoryStream();
-                document.Save(memStream);
-                document.Close(true);
+                    //saving to downloads folder
+                    MemoryStream memStream = new MemoryStream();
+                    document.Save(memStream);
+                    document.Close(true);
 
-                memStream.Position = 0;
+                    memStream.Position = 0;
 
-                FileStreamResult fileStreamResult = new FileStreamResult(memStream, "application/pdf");
-                fileStreamResult.FileDownloadName = "Certificate_" + currentUser.FirstName + currentUser.LastName + "_" + test.Name + ".pdf";
+                    FileStreamResult fileStreamResult = new FileStreamResult(memStream, "application/pdf");
+                    fileStreamResult.FileDownloadName = "Certificate_" + currentUser.FirstName + currentUser.LastName + "_" + test.Name + ".pdf";
 
-                return fileStreamResult;
+                    return fileStreamResult;
+                }
+                catch(Exception)
+                {
+                    TempData["ErrorMessage"] = "Failed to generate certificate";
+
+                    return RedirectToAction("UserAttempts");
+                }
             }
         }
 

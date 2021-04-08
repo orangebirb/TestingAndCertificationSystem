@@ -197,5 +197,42 @@ namespace TestingAndCertificationSystem.Controllers
         }
 
         #endregion
+
+        #region Edit user profile
+
+        [HttpGet]
+        public async Task<IActionResult> Profile()
+        {
+            UserIdentity currentUser = await _userManager.GetUserAsync(User);
+
+            return View(currentUser);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> EditProfile(UserIdentity user)
+        {
+            try
+            {
+                UserIdentity currentUser = await _userManager.GetUserAsync(User);
+
+                currentUser.FirstName = user.FirstName;
+                currentUser.LastName = user.LastName;
+                currentUser.City = user.City;
+                currentUser.Phone = user.Phone;
+                currentUser.Description = user.Description;
+
+                var result = await _userManager.UpdateAsync(currentUser);
+
+                TempData["SuccessMessage"] = "User profile updated";
+            }
+            catch (Exception)
+            {
+                TempData["ErrorMessage"] = "Failed to update user profile";
+            }
+
+            return RedirectToAction("Profile");
+        }
+
+        #endregion
     }
 }
