@@ -13,10 +13,6 @@ namespace TestingAndCertificationSystem.ViewModels
         public string Name { get; set; }
 
         [Required]
-        [Display(Name = "Description")]
-        public string Description { get; set; }
-
-        [Required]
         [Display(Name = "Text")]
         public string Text { get; set; }
 

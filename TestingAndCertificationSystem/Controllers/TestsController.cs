@@ -152,6 +152,7 @@ namespace TestingAndCertificationSystem.Controllers
                 await _context.SaveChangesAsync();
 
                 ViewBag.successMessage = "Changes saved";
+                TempData["testId"] = testToEdit.Id;
             }
             catch (Exception ex)
             {
@@ -312,7 +313,7 @@ namespace TestingAndCertificationSystem.Controllers
                 //if question text = null || not created any options || text in all this options = null
                 if(model.Question.Text == null || model.Choices == null || model.Choices.Any(x => x.Choice.Text == null))
                 {
-                    ViewBag.ErrorMessage = "You can't add a question without text or any options";
+                    ViewBag.ErrorMessage = "You can't add a question without text, options or empty options";
                     return View();
                 }
 
@@ -365,12 +366,21 @@ namespace TestingAndCertificationSystem.Controllers
 
             if (questionToDelete != null)
             {
-                var choices = _context.Choice.Where(x => x.QuestionId == questionToDelete.Id); //deleting choices of this answer
+                //var choices = _context.Choice.Where(x => x.QuestionId == questionToDelete.Id); //deleting choices of this answer
 
                 // _context.Choice.RemoveRange(choices);
                 _context.Question.Remove(questionToDelete);
 
                 await _context.SaveChangesAsync();
+                var questionsInTestLeft = _context.Question.Where(x => x.TestId == questionToDelete.TestId).Count();
+
+                if (questionsInTestLeft == 0)
+                {
+                    var test = _context.Test.Find(questionToDelete.TestId);
+                    test.IsActive = false;
+
+                    await _context.SaveChangesAsync();
+                }
             }
 
             return RedirectToAction("TestInfopage", new { testId });
@@ -683,33 +693,51 @@ namespace TestingAndCertificationSystem.Controllers
                 var test = _context.Test.Where(x => x.Id == registration.TestId).FirstOrDefault();
                 var totalQuestionCount = _context.Question.Where(x => x.TestId == test.Id).Count();
 
-                var testResult = _context.TestResults.Where(x => x.RegistrationId == registration.Id).FirstOrDefault();
+                TestResults testResult = _context.TestResults.Where(x => x.RegistrationId == registration.Id).FirstOrDefault();
 
-                IEnumerable<QuestionAnswer> userResults = _context.QuestionAnswer.Where(x => x.TestResultId == testResult.Id); //user's answers
+                int userMark = 0;
 
-                //user`s scored mark in percents
-
-                var userMark = (int)(userResults.GroupBy(x => x.QuestionId).Select(y => y.First()).Sum(x => x.TotalMark) / (totalQuestionCount) * 100);
-
-                testResult.FinalMarkInPercents = userMark;
-
-                if (userMark >= test.PassingMarkInPercents)
-                {
-                    testResult.IsPassed = true;
-
-                    if (test.AdditionalTaskId != null)
+                if(testResult == null)
+                { 
+                    testResult = new TestResults()
                     {
-                        var additionalTask = _context.AdditionalTask.Where(x => x.Id == test.AdditionalTaskId).FirstOrDefault();
+                        RegistrationId = _context.Registration.Where(x => x.Token == token).FirstOrDefault().Id,
+                        FinalMarkInPercents = 0,
+                        IsPassed = false
+                    };
 
-                        UserIdentity currentUser = await _userManager.GetUserAsync(User);
+                    _context.TestResults.Add(testResult);
 
-                        SendAdditionalTask(additionalTask, test.Name, currentUser);
-                    }
+                    await _context.SaveChangesAsync();
                 }
                 else
-                    testResult.IsPassed = false;
+                {
+                    IEnumerable<QuestionAnswer> userResults = _context.QuestionAnswer.Where(x => x.TestResultId == testResult.Id); //user's answers
 
-                await _context.SaveChangesAsync();
+                    //user`s scored mark in percents
+                    userMark = (int)(userResults.GroupBy(x => x.QuestionId).Select(y => y.First()).Sum(x => x.TotalMark) / (totalQuestionCount) * 100);
+
+                    testResult.FinalMarkInPercents = userMark;
+
+                    if (userMark >= test.PassingMarkInPercents)
+                    {
+                        testResult.IsPassed = true;
+
+                        if (test.AdditionalTaskId != null)
+                        {
+                            var additionalTask = _context.AdditionalTask.Where(x => x.Id == test.AdditionalTaskId).FirstOrDefault();
+
+                            UserIdentity currentUser = await _userManager.GetUserAsync(User);
+
+                            SendAdditionalTask(additionalTask, test.Name, currentUser);
+                        }
+                    }
+                    else
+                        testResult.IsPassed = false;
+
+                    await _context.SaveChangesAsync();
+                }
+                
 
                 ViewBag.RequiredMinMark = test.PassingMarkInPercents;
                 ViewBag.q = userMark;
