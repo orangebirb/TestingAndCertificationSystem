@@ -41,7 +41,7 @@ else
 {
     <table class="table">
         <tr>
-            <th class="text-gradient-orange2"><a asp-action="VerifiedUsers" asp-route-sortOrder="@ViewBag.EmailSortParm">Email</a></th>
+            <th class="text-gradient-orange1">Email</th>
             <th></th>
         </tr>
         @foreach (var user in Model.source)
@@ -81,18 +81,18 @@ else
     var previousDisabled = !Model.pagination.HasPreviousPage ? "disabled" : "";
     var nextDisabled = !Model.pagination.HasNextPage ? "disabled" : "";
 
-    <a asp-action="Tests"
+    <a asp-action="VerifiedUsers"
        asp-route-page="@(Model.pagination.PageNum - 1)"
-       asp-route-sortOrder="@ViewData["CurrentSort"]"
+       asp-route-testId="@Context.Request.Query["testId"]"
        class="btn text-gradient-orange2 border-orange2 @previousDisabled">
         Previous
     </a>
 
     <small>Page @ViewBag.Page of @ViewBag.PageCount</small>
 
-    <a asp-action="Tests"
+    <a asp-action="VerifiedUsers"
        asp-route-page="@(Model.pagination.PageNum + 1)"
-       asp-route-sortOrder="@ViewData["CurrentSort"]"
+       asp-route-testId="@Context.Request.Query["testId"]"
        class="btn text-gradient-orange2 border-orange2 @nextDisabled">
         Next
     </a>
