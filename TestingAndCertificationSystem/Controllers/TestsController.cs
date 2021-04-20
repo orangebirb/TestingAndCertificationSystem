@@ -568,56 +568,21 @@ namespace TestingAndCertificationSystem.Controllers
 
                     if (currentTest != null)
                     {
-                        Registration registration = _context.Registration.Where(x => x.UserId == currentUser.Id
-                            && x.TestId == testId
-                            && x.EndingTime > DateTime.Now).FirstOrDefault();
-
-                        if (registration != null)
+                        Registration newRegistration = new Registration()
                         {
-                            TestResults results = _context.TestResults.Where(x => x.RegistrationId == registration.Id).FirstOrDefault();
+                            UserId = currentUser.Id,
+                            TestId = testId,
+                            Token = Guid.NewGuid(),
+                            EntryTime = DateTime.Now,
+                            EndingTime = DateTime.Now.AddMinutes(currentTest.DurationInMinutes)
+                        };
 
-                            //registrated & not submited = current registration
-                            if (results == null)
-                            {
-                                return RedirectToAction("Test", new { token = registration.Token, qNum = 1 });
-                            }
+                        _context.Registration.Add(newRegistration);
 
-                            //registrated & submited = new registration
+                        await _context.SaveChangesAsync();
 
-                            Registration newRegistration = new Registration()
-                            {
-                                UserId = currentUser.Id,
-                                TestId = testId,
-                                Token = Guid.NewGuid(),
-                                EntryTime = DateTime.Now,
-                                EndingTime = DateTime.Now.AddMinutes(currentTest.DurationInMinutes)
-                            };
-
-                            _context.Registration.Add(newRegistration);
-
-                            await _context.SaveChangesAsync();
-
-                            return RedirectToAction("Test", new { token = newRegistration.Token, qNum = 1 });
-                        }
-                        else //not registrated
-                        {
-                            Registration newRegistration = new Registration()
-                            {
-                                UserId = currentUser.Id,
-                                TestId = testId,
-                                Token = Guid.NewGuid(),
-                                EntryTime = DateTime.Now,
-                                EndingTime = DateTime.Now.AddMinutes(currentTest.DurationInMinutes)
-                            };
-
-                            _context.Registration.Add(newRegistration);
-
-                            await _context.SaveChangesAsync();
-
-                            return RedirectToAction("Test", new { token = newRegistration.Token, qNum = 1 });
-                        }
-
-                    }
+                        return RedirectToAction("Test", new { token = newRegistration.Token, qNum = 1 });
+                    }       
                 }
 
                 return View("Error");
@@ -942,6 +907,13 @@ namespace TestingAndCertificationSystem.Controllers
                 Registration registration = _context.Registration.Find(registrationId);
 
                 TestResults testResults = _context.TestResults.Where(x => x.RegistrationId == registration.Id).FirstOrDefault();
+
+                var userAnswersMark = _context.QuestionAnswer.Where(x => x.RegistrationId == registration.Id).Select(x => x.TotalMark).Sum();
+
+                if(testResults.FinalMarkInPercents == 0 && userAnswersMark > 0)
+                {
+                    ViewBag.UserLeftMsg = "User left test without submitting";
+                }
 
                 UserIdentity user = _userManager.Users.Where(x => x.Id == registration.UserId).FirstOrDefault();
 

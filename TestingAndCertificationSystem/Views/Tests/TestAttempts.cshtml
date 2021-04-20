@@ -6,6 +6,7 @@
     List<TestResults> results = ViewBag.results;
 }
 
+
 <div class="col-md-10">
     <h2 class="text-gradient-orange2">"@ViewBag.TestName" test attempts</h2>
     &nbsp;&nbsp;&nbsp;&nbsp;
@@ -16,7 +17,6 @@
     <br />
     <br />
 </div>
-
 
 @if (Model.source.Count() == 0)
 {
@@ -32,7 +32,7 @@ else
         <tr>
             <th class="text-gradient-orange1">User</th>
             <th class="text-gradient-orange2">
-                <a asp-action="TestAttempts" asp-route-testId="@Model.source.FirstOrDefault().TestId" 
+                <a asp-action="TestAttempts" asp-route-testId="@Model.source.FirstOrDefault().TestId"
                    asp-route-sortOrder="@ViewBag.DateSortParm">Entry time</a>
             </th>
             <th class="text-gradient-orange2">
