@@ -264,8 +264,9 @@ namespace TestingAndCertificationSystem.Controllers
             
                 Test test = _context.Test.Find(testId);
 
-                //moderators can't see other tests in company
-                if (User.IsInRole(Roles.CompanyModerator) && test.TestAuthorId != currentUser.Id)
+                //moderators can't see others tests in company & access denied if user from other company
+                if ((User.IsInRole(Roles.CompanyModerator) && test.TestAuthorId != currentUser.Id)
+                    || _userManager.FindByIdAsync(test.TestAuthorId).Result.CompanyId != currentUser.CompanyId)
                 {
                     return RedirectToAction("Error");
                 }               

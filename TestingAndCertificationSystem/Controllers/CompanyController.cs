@@ -162,15 +162,31 @@ namespace TestingAndCertificationSystem.Controllers
         public async Task<IActionResult> RemoveModerator(string id)
         {
             UserIdentity user = await _userManager.FindByIdAsync(id);
+
             if (user == null)
             {
                 ModelState.AddModelError("", "User can't be found");
             }
             else
             {
-                UserIdentity currentUser = await _userManager.GetUserAsync(User);
-                //int userCompanyId = currentUser.CompanyId; // current user's (admin's) company id
+                UserIdentity currentAdmin = await _userManager.GetUserAsync(User);
 
+                //transfer the rights to the test to the admin
+                var moderatorTests = _context.Test.Where(x => x.TestAuthorId == user.Id).ToList();
+
+                foreach(var test in moderatorTests)
+                {
+                    test.TestAuthorId = currentAdmin.Id;
+                    if(test.AdditionalTaskId != null)
+                    {
+                        var task = _context.AdditionalTask.Where(x => x.Id == test.AdditionalTaskId).FirstOrDefault();
+                        task.RecipientEmail = currentAdmin.Email;
+                    }
+                }
+
+                await _context.SaveChangesAsync();
+
+                //change user's role to "User"
                 user.CompanyId = 0;
 
                 var UserResult = await _userManager.UpdateAsync(user);
