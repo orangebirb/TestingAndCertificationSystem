@@ -7,7 +7,6 @@
   <ItemGroup>
     <PackageReference Include="bootstrap" Version="4.6.0" />
     <PackageReference Include="glyphicon" Version="1.0.1" />
-    <PackageReference Include="jQuery" Version="3.5.1" />
     <PackageReference Include="MailKit" Version="2.10.1" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="3.1.11" />
     <PackageReference Include="Microsoft.AspNetCore.Session" Version="2.2.0" />

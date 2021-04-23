@@ -33,7 +33,8 @@ namespace TestingAndCertificationSystem
         {
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseSqlServer("Data Source=DESKTOP-LKRUCGN;Initial Catalog=TestingSystemDBd;Integrated Security=false;Trusted_Connection=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False;User ID=DiplomaUser;Password=diploma");
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
+                optionsBuilder.UseSqlServer("Data Source=DESKTOP-LKRUCGN;Initial Catalog=TestingSystemDBd;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
             }
         }
 
@@ -65,7 +66,7 @@ namespace TestingAndCertificationSystem
                 entity.HasOne(d => d.Question)
                     .WithMany(p => p.Choice)
                     .HasForeignKey(d => d.QuestionId)
-                    .HasConstraintName("FK__Choice__Question__0D0FEE32");
+                    .HasConstraintName("FK__Choice__Question__36B12243");
             });
 
             modelBuilder.Entity<Company>(entity =>
@@ -95,7 +96,7 @@ namespace TestingAndCertificationSystem
                 entity.HasOne(d => d.Test)
                     .WithMany(p => p.Question)
                     .HasForeignKey(d => d.TestId)
-                    .HasConstraintName("FK__Question__TestId__0C1BC9F9");
+                    .HasConstraintName("FK__Question__TestId__37A5467C");
             });
 
             modelBuilder.Entity<QuestionAnswer>(entity =>
@@ -104,18 +105,18 @@ namespace TestingAndCertificationSystem
                     .WithMany(p => p.QuestionAnswer)
                     .HasForeignKey(d => d.QuestionId)
                     .OnDelete(DeleteBehavior.SetNull)
-                    .HasConstraintName("FK__QuestionA__Quest__4FD1D5C8");
+                    .HasConstraintName("FK__QuestionA__Quest__398D8EEE");
 
                 entity.HasOne(d => d.Registration)
                     .WithMany(p => p.QuestionAnswer)
                     .HasForeignKey(d => d.RegistrationId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__QuestionA__Regis__24E777C3");
+                    .HasConstraintName("FK__QuestionA__Regis__38996AB5");
 
                 entity.HasOne(d => d.TestResult)
                     .WithMany(p => p.QuestionAnswer)
                     .HasForeignKey(d => d.TestResultId)
-                    .HasConstraintName("FK__QuestionA__TestR__58671BC9");
+                    .HasConstraintName("FK__QuestionA__TestR__3A81B327");
             });
 
             modelBuilder.Entity<Registration>(entity =>
@@ -128,7 +129,7 @@ namespace TestingAndCertificationSystem
                     .WithMany(p => p.Registration)
                     .HasForeignKey(d => d.TestId)
                     .OnDelete(DeleteBehavior.SetNull)
-                    .HasConstraintName("FK__Registrat__TestI__6C6E1476");
+                    .HasConstraintName("FK__Registrat__TestI__3B75D760");
             });
 
             modelBuilder.Entity<Test>(entity =>
@@ -138,12 +139,6 @@ namespace TestingAndCertificationSystem
                 entity.Property(e => e.Instruction)
                     .IsRequired()
                     .IsUnicode(false);
-
-                entity.Property(e => e.IsPrivate)
-                    .IsRequired()
-                    .HasDefaultValueSql("((1))");
-
-                entity.Property(e => e.Link).IsUnicode(false);
 
                 entity.Property(e => e.Name)
                     .IsRequired()
@@ -158,7 +153,7 @@ namespace TestingAndCertificationSystem
                     .WithMany(p => p.Test)
                     .HasForeignKey(d => d.AdditionalTaskId)
                     .OnDelete(DeleteBehavior.SetNull)
-                    .HasConstraintName("FK__Test__Additional__53D770D6");
+                    .HasConstraintName("FK__Test__Additional__3C69FB99");
             });
 
             modelBuilder.Entity<TestResults>(entity =>
@@ -167,7 +162,7 @@ namespace TestingAndCertificationSystem
                     .WithMany(p => p.TestResults)
                     .HasForeignKey(d => d.RegistrationId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__TestResul__Regis__42E1EEFE");
+                    .HasConstraintName("FK__TestResul__Regis__3D5E1FD2");
             });
 
             modelBuilder.Entity<VerifiedUsers>(entity =>
@@ -179,7 +174,7 @@ namespace TestingAndCertificationSystem
                 entity.HasOne(d => d.Test)
                     .WithMany(p => p.VerifiedUsers)
                     .HasForeignKey(d => d.TestId)
-                    .HasConstraintName("FK__VerifiedU__TestI__1940BAED");
+                    .HasConstraintName("FK__VerifiedU__TestI__3E52440B");
             });
 
             OnModelCreatingPartial(modelBuilder);
