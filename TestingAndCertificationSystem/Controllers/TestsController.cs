@@ -221,15 +221,17 @@ namespace TestingAndCertificationSystem.Controllers
 
                 if (testToEdit != null)
                 {
-                    if (_context.Question.Where(x => x.TestId == testToEdit.Id).Count() == 0)
+                    if (testToEdit.IsActive == true)
                     {
-                        TempData["ErrorMessage"] = "You can't activate test without any questions";
+                        testToEdit.IsActive = false;
+
+                        await _context.SaveChangesAsync();
                     }
                     else
                     {
-                        if (testToEdit.IsActive == true)
+                        if (_context.Question.Where(x => x.TestId == testToEdit.Id).Count() == 0)
                         {
-                            testToEdit.IsActive = false;
+                            TempData["ErrorMessage"] = "You can't activate test without any questions";
                         }
                         else
                         {
@@ -239,14 +241,14 @@ namespace TestingAndCertificationSystem.Controllers
                                 testToEdit.TokenStartTime = DateTime.Now;
 
                                 testToEdit.IsActive = true;
+
+                                await _context.SaveChangesAsync();
                             }
                             else
                             {
                                 TempData["ErrorMessage"] = "Choose correct date";
                             }
                         }
-
-                        await _context.SaveChangesAsync();
                     }
                 }
 
@@ -800,7 +802,7 @@ namespace TestingAndCertificationSystem.Controllers
 
             private void SendAdditionalTask(AdditionalTask additionalTask, string testName, UserIdentity user)
             {
-                string path = @"D:\Diploma\Resources\smtp data.txt";
+                string path = @"Resources\smtp data.txt";
 
                 try
                 {
@@ -1106,7 +1108,7 @@ namespace TestingAndCertificationSystem.Controllers
             {
                 try
                 {
-                    string path = @"D:\Diploma\Resources\QtBinariesWindows";
+                    string path = @"Resources\QtBinariesWindows";
 
                     HtmlToPdfConverter converter = new HtmlToPdfConverter();
 
