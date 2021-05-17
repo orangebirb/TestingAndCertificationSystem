@@ -42,10 +42,6 @@ namespace TestingAndCertificationSystem.Controllers
                 ViewData["NameSortParm"] = sortOrder == SortingOrders.NameAsc ? SortingOrders.NameDesc : SortingOrders.NameAsc;
                 ViewData["IsActiveSortParm"] = sortOrder == SortingOrders.IsActiveOnly ? SortingOrders.IsNotActiveOnly : SortingOrders.IsActiveOnly;
 
-                //list of all additional tasks
-                List<AdditionalTask> listOfTasks = new List<AdditionalTask>();
-                listOfTasks = _context.AdditionalTask.ToList();
-
                 IQueryable<Test> tests;
 
                 UserIdentity currentUser = await _userManager.GetUserAsync(User);
@@ -62,7 +58,7 @@ namespace TestingAndCertificationSystem.Controllers
                 else
                 {
                     //only this.user tests (for moderators)
-                    tests = _context.Test.Where(x => x.TestAuthorId == User.FindFirstValue(ClaimTypes.NameIdentifier));
+                    tests = _context.Test.Where(x => x.TestAuthorId == currentUser.Id);
                 }
 
                 tests = sortOrder switch
@@ -86,7 +82,6 @@ namespace TestingAndCertificationSystem.Controllers
                     source = items
                 };
 
-                ViewBag.TasksList = listOfTasks;
                 ViewBag.Page = page;
                 ViewBag.PageCount = (count + pageSize - 1) / pageSize;
 
@@ -605,7 +600,7 @@ namespace TestingAndCertificationSystem.Controllers
                     {
                         //if submit without any answer
                         TempData["ErrorMessage"] = "You did not choose an answer";
-                        return RedirectToAction("Test", new { token = token, qNum = qNum });
+                        return RedirectToAction("Test", new { token, qNum });
                     }
 
                     TestResults testResults;
@@ -835,21 +830,91 @@ namespace TestingAndCertificationSystem.Controllers
                         client.Disconnect(true);
                     }
                 }
-                catch(Exception)
+                catch(Exception ex)
                 {
-                    TempData["ErrorMessage"] = "Smtp error: Failed to send additional task";
+                TempData["ErrorMessage"] = ex.Message; //"Smtp error: Failed to send additional task";
                 }
             }
 
         #endregion
 
+            #region certificate
+
+            public async Task<IActionResult> GenerateCertificate(int resultsId)
+            {
+                var results = _context.TestResults.Find(resultsId);
+
+                if (results == null)
+                {
+                    TempData["ErrorMessage"] = "Failed to find test results";
+
+                    return RedirectToAction("UserAttempts");
+                }
+                else
+                {
+                    try
+                    {
+                        string path = @"Resources\QtBinariesWindows";
+
+                        HtmlToPdfConverter converter = new HtmlToPdfConverter();
+
+                        WebKitConverterSettings settings = new WebKitConverterSettings();
+                        settings.WebKitPath = path;
+
+                        converter.ConverterSettings = settings;
+
+                        //filling template with test results data
+                        #region certificate text
+
+                        string str = System.IO.File.ReadAllText(@"Resources\CertificateTemplate.txt");
+
+                        UserIdentity currentUser = await _userManager.GetUserAsync(User);
+                        var registration = _context.Registration.Find(results.RegistrationId);
+                        var test = _context.Test.Find(registration.TestId);
+                        var testAuthor = _userManager.Users.Where(x => x.Id == test.TestAuthorId).FirstOrDefault();
+                        var company = _context.Company.Find(testAuthor.CompanyId);
+
+                        str = str.Replace("_companyName", company.FullName);
+                        str = str.Replace("_testAuthorName", testAuthor.FirstName + " " + testAuthor.LastName);
+                        str = str.Replace("_userName", currentUser.FirstName + " " + currentUser.LastName);
+                        str = str.Replace("_testName", test.Name);
+                        str = str.Replace("_testScore", results.FinalMarkInPercents.ToString() + "%");
+                        str = str.Replace("_date", registration.EntryTime.ToString("dd/MM/yyyy"));
+
+                        #endregion
+
+                        PdfDocument document = converter.Convert(str, string.Empty);
+
+                        //saving to downloads folder
+                        MemoryStream memStream = new MemoryStream();
+                        document.Save(memStream);
+                        document.Close(true);
+
+                        memStream.Position = 0;
+
+                        FileStreamResult fileStreamResult = new FileStreamResult(memStream, "application/pdf");
+                        fileStreamResult.FileDownloadName = "Certificate_" + currentUser.FirstName + currentUser.LastName + "_" + test.Name + ".pdf";
+
+                        return fileStreamResult;
+                    }
+                    catch (Exception)
+                    {
+                        TempData["ErrorMessage"] = "Failed to generate certificate";
+
+                        return RedirectToAction("UserAttempts");
+                    }
+                }
+            }
+
+            #endregion
+
         #endregion
 
         #region assignment results
 
-            #region Test attempts
+        #region Test attempts
 
-            [Authorize(Roles = Roles.CompanyAdmin + ", " + Roles.CompanyModerator)]
+        [Authorize(Roles = Roles.CompanyAdmin + ", " + Roles.CompanyModerator)]
             //attempts of a chosen test (only for admin or moderator)
             public async Task<IActionResult> TestAttempts(int testId, SortingOrders sortOrder, int page = 1)
             {
@@ -1004,7 +1069,7 @@ namespace TestingAndCertificationSystem.Controllers
 
             }
 
-        #endregion
+            #endregion
 
         #endregion
 
@@ -1090,76 +1155,6 @@ namespace TestingAndCertificationSystem.Controllers
 
             #endregion
 
-        #endregion
-
-        #region certificate
-
-        public async Task<IActionResult> GenerateCertificate(int resultsId)
-        {
-            var results = _context.TestResults.Find(resultsId);
-
-            if(results == null)
-            {
-                TempData["ErrorMessage"] = "Failed ";
-
-                return RedirectToAction("UserAttempts");
-            }
-            else
-            {
-                try
-                {
-                    string path = @"Resources\QtBinariesWindows";
-
-                    HtmlToPdfConverter converter = new HtmlToPdfConverter();
-
-                    WebKitConverterSettings settings = new WebKitConverterSettings();
-                    settings.WebKitPath = path;
-
-                    converter.ConverterSettings = settings;
-
-                    //filling template with test results data
-                    #region certificate text
-
-                    string str = System.IO.File.ReadAllText(@"Resources\CertificateTemplate.txt");
-
-                    UserIdentity currentUser = await _userManager.GetUserAsync(User);
-                    var registration = _context.Registration.Find(results.RegistrationId);
-                    var test = _context.Test.Find(registration.TestId);
-                    var testAuthor = _userManager.Users.Where(x => x.Id == test.TestAuthorId).FirstOrDefault();
-                    var company = _context.Company.Find(testAuthor.CompanyId);
-
-                    str = str.Replace("_companyName", company.FullName);
-                    str = str.Replace("_testAuthorName", testAuthor.FirstName + " " + testAuthor.LastName);
-                    str = str.Replace("_userName", currentUser.FirstName + " " + currentUser.LastName);
-                    str = str.Replace("_testName", test.Name);
-                    str = str.Replace("_testScore", results.FinalMarkInPercents.ToString() + "%");
-                    str = str.Replace("_date", registration.EntryTime.ToString("dd/MM/yyyy"));
-
-                    #endregion
-
-                    PdfDocument document = converter.Convert(str, string.Empty);
-
-                    //saving to downloads folder
-                    MemoryStream memStream = new MemoryStream();
-                    document.Save(memStream);
-                    document.Close(true);
-
-                    memStream.Position = 0;
-
-                    FileStreamResult fileStreamResult = new FileStreamResult(memStream, "application/pdf");
-                    fileStreamResult.FileDownloadName = "Certificate_" + currentUser.FirstName + currentUser.LastName + "_" + test.Name + ".pdf";
-
-                    return fileStreamResult;
-                }
-                catch(Exception)
-                {
-                    TempData["ErrorMessage"] = "Failed to generate certificate";
-
-                    return RedirectToAction("UserAttempts");
-                }
-            }
-        }
-
-        #endregion
+        #endregion        
     }
 }
