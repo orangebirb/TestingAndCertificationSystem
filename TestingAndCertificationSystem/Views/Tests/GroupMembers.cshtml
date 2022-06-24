@@ -1,12 +1,12 @@
 ﻿@using TestingAndCertificationSystem.Resources;
-@model PaginationGeneric<VerifiedUser>
+@model PaginationGeneric<GroupUser>
 
 <div class="col-md-10">
-    <h2 class="text-gradient-orange2">Verified users</h2>
+    <h2 class="text-gradient-orange2">Group members</h2>
     &nbsp;&nbsp;&nbsp;&nbsp;
     <i class="fas fa-caret-left orange1"></i>
-    <a class="btn-link orange1" asp-controller="Tests" asp-action="TestInfopage" asp-route-testId="@Context.Request.Query["testId"]">
-        Back to test information
+    <a class="btn-link orange1" asp-controller="Tests" asp-action="Groups">
+        Back to groups
     </a>
     <br />
     <br />
@@ -21,7 +21,7 @@
 
 }
 
-<form method="post" asp-action="AddUserToVL" , asp-route-testId="@Context.Request.Query["testId"]">
+<form method="post" asp-action="AddUserToGroup" , asp-route-groupId="@Context.Request.Query["groupId"]">
     <div class="input-group">
         <input type="search" name="userEmail" class="form-control" placeholder="Enter user's email">
         <button type="submit" class="btn btn-outline-warning"><i class="fas fa-plus orange2"></i></button>
@@ -33,7 +33,7 @@
 {
     <div class="col-md-10">
         <div class="alert alert-info" role="alert">
-            No users can access this test
+            This group is empty
         </div>
     </div>
 }
@@ -48,12 +48,12 @@ else
         {
             <tr>
                 <td>@user.UserEmail</td>
-                <td>
+                <td align=Right>
                     <div style="margin-left:auto">
                         <button type="button" class="btn btn-sm btn-danger" data-toggle="modal" data-target="#Model_@user.Id">
                             Delete
                         </button>
-                        <div class="modal fade" id="Model_@user.Id" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                        <div align=Left class="modal fade" id="Model_@user.Id" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                             <div class="modal-dialog">
                                 <div class="modal-content">
                                     <div class="modal-header">
@@ -64,7 +64,7 @@ else
                                     </div>
                                     <div class="modal-footer">
                                         <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Close</button>
-                                        <form asp-controller="Tests" asp-action="RemoveUserFromVL" asp-route-testId="@Context.Request.Query["testId"]" asp-route-userEmail="@user.UserEmail">
+                                        <form asp-controller="Tests" asp-action="RemoveUserFromGroup" asp-route-groupId="@Context.Request.Query["groupId"]" asp-route-userEmail="@user.UserEmail">
                                             <button type="submit" class="btn btn-sm btn-danger"> Remove </button>
                                         </form>
                                     </div>
@@ -81,18 +81,18 @@ else
     var previousDisabled = !Model.pagination.HasPreviousPage ? "disabled" : "";
     var nextDisabled = !Model.pagination.HasNextPage ? "disabled" : "";
 
-    <a asp-action="VerifiedUsers"
+    <a asp-action="GroupMembers"
        asp-route-page="@(Model.pagination.PageNum - 1)"
-       asp-route-testId="@Context.Request.Query["testId"]"
+       asp-route-groupId="@Context.Request.Query["groupId"]"
        class="btn text-gradient-orange2 border-orange2 @previousDisabled">
         Previous
     </a>
 
     <small>Page @ViewBag.Page of @ViewBag.PageCount</small>
 
-    <a asp-action="VerifiedUsers"
+    <a asp-action="GroupMembers"
        asp-route-page="@(Model.pagination.PageNum + 1)"
-       asp-route-testId="@Context.Request.Query["testId"]"
+       asp-route-groupId="@Context.Request.Query["groupId"]"
        class="btn text-gradient-orange2 border-orange2 @nextDisabled">
         Next
     </a>

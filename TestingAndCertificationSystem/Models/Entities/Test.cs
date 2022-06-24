@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using TestingAndCertificationSystem.Models;
 
 // Code scaffolded by EF Core assumes nullable reference types (NRTs) are not used or disabled.
 // If you have enabled NRTs for your project, then un-comment the following line:
@@ -13,7 +14,7 @@ namespace TestingAndCertificationSystem
         {
             Question = new HashSet<Question>();
             Registration = new HashSet<Registration>();
-            VerifiedUsers = new HashSet<VerifiedUsers>();
+            VerifiedUsers = new HashSet<VerifiedUser>();
         }
 
         public int Id { get; set; }
@@ -31,8 +32,9 @@ namespace TestingAndCertificationSystem
         public double PassingMarkInPercents { get; set; }
 
         public virtual AdditionalTask AdditionalTask { get; set; }
+        public virtual UserIdentity TestAuthor { get; set; }
         public virtual ICollection<Question> Question { get; set; }
         public virtual ICollection<Registration> Registration { get; set; }
-        public virtual ICollection<VerifiedUsers> VerifiedUsers { get; set; }
+        public virtual ICollection<VerifiedUser> VerifiedUsers { get; set; }
     }
 }

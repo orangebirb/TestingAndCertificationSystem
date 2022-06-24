@@ -14,12 +14,14 @@ namespace TestingAndCertificationSystem.Controllers
         private readonly UserManager<UserIdentity> _userManager;
         private readonly SignInManager<UserIdentity> _signInManager;
         private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly DBContext _context;
 
-        public AccountController(UserManager<UserIdentity> userManager, SignInManager<UserIdentity> signInManager, RoleManager<IdentityRole> roleManager)
+        public AccountController(UserManager<UserIdentity> userManager, SignInManager<UserIdentity> signInManager, RoleManager<IdentityRole> roleManager, DBContext context)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _roleManager = roleManager;
+            _context = context;
         }
 
         #region Registration as user
@@ -92,8 +94,6 @@ namespace TestingAndCertificationSystem.Controllers
         {
             if (ModelState.IsValid)
             {
-                TestingSystemDBContext _context = new TestingSystemDBContext();
-
                 Company newCompany = new Company
                 {
                     FullName = model.company.FullName,

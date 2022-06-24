@@ -21,11 +21,12 @@ namespace TestingAndCertificationSystem.Controllers
     public class TestsController : Controller
     {
         private readonly UserManager<UserIdentity> _userManager;
-        private readonly TestingSystemDBContext _context = new TestingSystemDBContext();
+        private readonly DBContext _context;
 
-        public TestsController(UserManager<UserIdentity> userManager)
+        public TestsController(UserManager<UserIdentity> userManager, DBContext context)
         {
             _userManager = userManager;
+            _context = context;
         }
 
         #region test management
@@ -283,6 +284,7 @@ namespace TestingAndCertificationSystem.Controllers
                     }
 
                     ViewBag.VerifiedUsersCount = _context.VerifiedUsers.Where(x => x.TestId == test.Id).Count();
+                    ViewBag.VerifiedGroupsCount = _context.VerifiedGroups.Where(x => x.TestId == test.Id).Count();
 
                     return View(test);
                 }
@@ -310,8 +312,15 @@ namespace TestingAndCertificationSystem.Controllers
                     ViewBag.QuestionCount = _context.Question.Where(x => x.TestId == test.Id).Count();
 
                     if(test.IsPrivate == true)
-                    {
-                        ViewBag.UserHaveAccess = (_context.VerifiedUsers.Where(x => x.UserEmail == User.Identity.Name).Count() != 0) ? true : false;
+                    {                      
+                        var verifiedGroups = _context.VerifiedGroups.Where(x => x.TestId == test.Id);
+
+                        var groupUserlist = _context.GroupUsers.Where(x => verifiedGroups.Any(y => y.GroupId == x.GroupId)).Select(s => s.UserEmail);
+                        var userlist = _context.VerifiedUsers.Where(x => x.TestId == test.Id).Select(s => s.UserEmail);
+
+                        var temp = groupUserlist.Union(userlist).ToList();
+
+                        ViewBag.UserHaveAccess = (groupUserlist.Union(userlist).Where(x => x == User.Identity.Name) == null) ? false : true;
                     }
 
                     // --- temp script for deactivating test ---
@@ -1069,7 +1078,224 @@ namespace TestingAndCertificationSystem.Controllers
 
             }
 
+        #endregion
+
+        #endregion
+
+        #region Groups management
+
+            #region Groups
+
+            [Authorize(Roles = Roles.CompanyAdmin + ", " + Roles.CompanyModerator)]
+            public async Task<IActionResult> Groups(int page = 1)
+            {
+                int pageSize = 10;
+
+                UserIdentity currentUser = await _userManager.GetUserAsync(User);
+
+                var groups = _context.Groups.Where(x => x.CreatorId == currentUser.Id);
+
+                var count = await groups.CountAsync();
+                var items = await groups.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
+
+                Pagination pagination = new Pagination(count, page, pageSize);
+                PaginationGeneric<Group> paginationVerifiedUsers = new PaginationGeneric<Group>
+                {
+                    pagination = pagination,
+                    source = items
+                };
+
+                ViewBag.Page = page;
+                ViewBag.PageCount = (count + pageSize - 1) / pageSize;
+
+                return View(paginationVerifiedUsers);
+            }
+
+        #endregion
+
+            #region Create group
+
+            [Authorize(Roles = Roles.CompanyAdmin + ", " + Roles.CompanyModerator)]
+            public IActionResult CreateGroup()
+            {
+                return View();
+            }
+
+
+            [Authorize(Roles = Roles.CompanyAdmin + ", " + Roles.CompanyModerator)]
+            [HttpPost]
+            public async Task<IActionResult> CreateGroup(Group model)
+            {
+                if (ModelState.IsValid)
+                {
+                    Group newGroup = new Group()
+                    {
+                        Name = model.Name,
+                        Description = model.Description,
+                        CreatorId = User.FindFirstValue(ClaimTypes.NameIdentifier).ToString(),
+                    };
+
+                    _context.Groups.Add(newGroup);
+
+                    await _context.SaveChangesAsync();
+
+                    return RedirectToAction("Groups");
+                }
+
+                return View();
+            }
+
+        #endregion
+
+            #region Delete group
+
+            [Authorize(Roles = Roles.CompanyAdmin + ", " + Roles.CompanyModerator)]
+            [HttpPost]
+            public async Task<IActionResult> DeleteGroup(int groupId)
+            {
+                Group groupToDelete = _context.Groups.Find(groupId);
+
+                if (groupToDelete != null)
+                {
+                    _context.Groups.Remove(groupToDelete);
+                    await _context.SaveChangesAsync();
+                }
+
+                return RedirectToAction("Groups");
+            }
+
             #endregion
+
+            #region Group members
+
+            [Authorize(Roles = Roles.CompanyAdmin + ", " + Roles.CompanyModerator)]
+            public async Task<IActionResult> GroupMembers(int groupId, int page = 1)
+            {
+                int pageSize = 10;
+
+                var groupMembers = _context.GroupUsers.Where(x => x.GroupId == groupId);
+
+                var count = await groupMembers.CountAsync();
+                var items = await groupMembers.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
+
+                Pagination pagination = new Pagination(count, page, pageSize);
+                PaginationGeneric<GroupUser> paginationGroupMembers = new PaginationGeneric<GroupUser>
+                {
+                    pagination = pagination,
+                    source = items
+                };
+
+                ViewBag.Page = page;
+                ViewBag.PageCount = (count + pageSize - 1) / pageSize;
+
+                return View(paginationGroupMembers);
+            }
+
+            #endregion
+
+            #region Add user to group
+
+            [Authorize(Roles = Roles.CompanyAdmin + ", " + Roles.CompanyModerator)]
+            public async Task<IActionResult> AddUserToGroup(int groupId, string userEmail)
+            {
+                if(string.IsNullOrEmpty(userEmail) || string.IsNullOrWhiteSpace(userEmail))
+                {
+                    TempData["ErrorMessage"] = "Email can't be null or whitespace";
+                }
+                else
+                {
+                    GroupUser newGroupUser = new GroupUser()
+                    {
+                        GroupId = groupId,
+                        UserEmail = userEmail
+                    };
+
+                    _context.GroupUsers.Add(newGroupUser);
+
+                    await _context.SaveChangesAsync();
+                }
+                
+
+                return RedirectToAction("GroupMembers", new { groupId });
+            }
+
+            #endregion
+
+            #region Remove user from group
+
+            [Authorize(Roles = Roles.CompanyAdmin + ", " + Roles.CompanyModerator)]
+            public async Task<IActionResult> RemoveUserFromGroup(int groupId, string userEmail)
+            { 
+                var user = _context.GroupUsers.Where(x => x.UserEmail == userEmail && x.GroupId == groupId).FirstOrDefault();
+
+                if(user != null)
+                {
+                    _context.GroupUsers.Remove(user);
+                }
+                
+                await _context.SaveChangesAsync();              
+
+                return RedirectToAction("GroupMembers", new { groupId });
+            }
+
+        #endregion
+
+            #region Verified groups
+
+            [Authorize(Roles = Roles.CompanyAdmin + ", " + Roles.CompanyModerator)]
+            public async Task<IActionResult> VerifiedGroups(int testId, int page = 1)
+            {
+                int pageSize = 10;
+
+                var verifiedGroups = _context.VerifiedGroups.Where(x => x.TestId == testId);
+
+                var groupsVM = new List<GroupViewModel>();
+           
+                var groups = _context.Groups.Where(x => verifiedGroups.Any(y => y.GroupId == x.Id)).ToList();
+                var groupsUserlist = _context.GroupUsers.Where(x => verifiedGroups.Any(y => y.GroupId == x.GroupId)).ToList();
+
+                foreach (var group in verifiedGroups)
+                {
+                    var currentGroup = groups.Where(x => x.Id == group.GroupId).FirstOrDefault();
+
+                    var groupVM = new GroupViewModel
+                    {
+                        Id = currentGroup.Id,
+                        Name = currentGroup.Name,
+                        Description = currentGroup.Description,
+                        MembersInGroup = groupsUserlist.Where(x => x.GroupId == currentGroup.Id).Count()
+                    };
+
+                    groupsVM.Add(groupVM);
+                }
+
+                var count = groupsVM.AsQueryable().Count();
+                var items = groupsVM.AsQueryable().Skip((page - 1) * pageSize).Take(pageSize).ToList();
+
+                Pagination pagination = new Pagination(count, page, pageSize);
+                PaginationGeneric<GroupViewModel> paginationVerifiedGroups = new PaginationGeneric<GroupViewModel>
+                {
+                    pagination = pagination,
+                    source = items
+                };
+
+                UserIdentity currentUser = await _userManager.GetUserAsync(User);
+
+                var currentUserGroups = _context.Groups.Where(x => x.CreatorId == currentUser.Id).ToList();
+
+                VerifiedGroupsViewModel verifiedGroupsViewModel = new VerifiedGroupsViewModel 
+                { 
+                    VerifiedGroups = paginationVerifiedGroups,
+                    Groups = currentUserGroups
+                };
+
+                ViewBag.Page = page;
+                ViewBag.PageCount = (count + pageSize - 1) / pageSize;
+
+                return View(verifiedGroupsViewModel);
+            }
+
+        #endregion
 
         #endregion
 
@@ -1088,7 +1314,7 @@ namespace TestingAndCertificationSystem.Controllers
                 var items = await verifiedUsers.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
 
                 Pagination pagination = new Pagination(count, page, pageSize);
-                PaginationGeneric<VerifiedUsers> paginationVerifiedUsers = new PaginationGeneric<VerifiedUsers>
+                PaginationGeneric<VerifiedUser> paginationVerifiedUsers = new PaginationGeneric<VerifiedUser>
                 {
                     pagination = pagination,
                     source = items
@@ -1117,7 +1343,7 @@ namespace TestingAndCertificationSystem.Controllers
                     }
                     else
                     {
-                        VerifiedUsers newVerifiedUser = new VerifiedUsers()
+                        VerifiedUser newVerifiedUser = new VerifiedUser()
                         {
                             TestId = testId,
                             UserEmail = userEmail
@@ -1153,8 +1379,58 @@ namespace TestingAndCertificationSystem.Controllers
                 return RedirectToAction("VerifiedUsers", new { testId });
             }
 
+        #endregion
+
+            #region Add group to verified list
+
+            [Authorize(Roles = Roles.CompanyAdmin + ", " + Roles.CompanyModerator)]
+            public async Task<IActionResult> AddGroupToVL(int testId, int groupId)
+            {
+                var test = _context.Test.Find(testId);
+                var group = _context.Groups.Find(groupId);
+
+                if (test != null && group != null)
+                {
+
+                    VerifiedGroup newVerifiedGroup = new VerifiedGroup()
+                    {
+                        TestId = testId,
+                        GroupId = group.Id
+                    };
+
+                    _context.VerifiedGroups.Add(newVerifiedGroup);
+
+                    await _context.SaveChangesAsync();
+                    
+                }
+
+                return RedirectToAction("VerifiedGroups", new { testId });
+            }
+
             #endregion
 
-        #endregion        
+            #region Remove group from verified list
+
+            [Authorize(Roles = Roles.CompanyAdmin + ", " + Roles.CompanyModerator)]
+            public async Task<IActionResult> RemoveGroupFromVL(int testId, int groupId)
+            {
+                var test = _context.Test.Find(testId);
+                var group = _context.Groups.Find(groupId);
+
+                if (test != null && group != null)
+                {
+                    var verifiedGroup = _context.VerifiedGroups.Where(x => x.GroupId == group.Id && x.TestId == test.Id).FirstOrDefault();
+
+                    _context.VerifiedGroups.Remove(verifiedGroup);
+
+                    await _context.SaveChangesAsync();
+                }
+
+                return RedirectToAction("VerifiedGroups", new { testId });
+            }
+
+            #endregion
+
+        #endregion
     }
 }

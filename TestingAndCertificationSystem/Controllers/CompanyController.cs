@@ -19,12 +19,13 @@ namespace TestingAndCertificationSystem.Controllers
     {
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly UserManager<UserIdentity> _userManager;
-        private TestingSystemDBContext _context = new TestingSystemDBContext();
+        private DBContext _context;
 
-        public CompanyController(UserManager<UserIdentity> userManager, RoleManager<IdentityRole> roleManager)
+        public CompanyController(UserManager<UserIdentity> userManager, RoleManager<IdentityRole> roleManager, DBContext context)
         {
             _roleManager = roleManager;
             _userManager = userManager;
+            _context = context;
         }
 
         public async Task<IActionResult> Moderators(SortingOrders sortOrder, int page = 1)

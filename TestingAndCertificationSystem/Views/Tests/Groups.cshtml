@@ -1,0 +1,69 @@
+﻿@using TestingAndCertificationSystem.Resources;
+@model PaginationGeneric<Group>
+
+<div class="col-md-10">
+    <h2 class="text-gradient-orange2">Groups</h2>
+    &nbsp;&nbsp;&nbsp;&nbsp;
+    <i class="fas fa-plus orange1"></i>
+    <a class="btn-link orange1" asp-controller="Tests" asp-action="CreateGroup">
+        Create new group
+    </a>
+    <br />
+    <br />
+</div>
+
+@if (Model.source.Count() == 0)
+{
+    <div class="col-md-10">
+        <div class="alert alert-info" role="alert">
+            No groups are found
+        </div>
+    </div>
+}
+else
+{
+    <table class="table">
+        <tr>
+            <th class="text-gradient-orange2"><a asp-action="Groups" asp-route-sortOrder="@ViewBag.NameSortParm">Name</a></th>
+            <th class="text-gradient-orange1">Description</th>
+            <th class="text-gradient-orange1">Users in group</th>
+            <th></th>
+        </tr>
+        @foreach (var group in Model.source)
+        {
+            <tr>
+                <td>@group.Name</td>
+                <td>@group.Description</td>
+                <td>
+                    <form asp-controller="Tests" asp-action="GroupMembers" asp-route-groupId="@group.Id">
+                        <button type="submit" class="btn btn-sm btn-info"> View members </button>
+                    </form>
+                </td>
+                <td align=Right>
+                    <form asp-controller="Tests" asp-action="DeleteGroup" asp-route-groupId="@group.Id">
+                        <button type="submit" class="btn btn-sm btn-danger"> Delete group </button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </table>
+
+    var previousDisabled = !Model.pagination.HasPreviousPage ? "disabled" : "";
+    var nextDisabled = !Model.pagination.HasNextPage ? "disabled" : "";
+
+    <a asp-action="Groups"
+       asp-route-page="@(Model.pagination.PageNum - 1)"
+       asp-route-sortOrder="@ViewData["CurrentSort"]"
+       class="btn text-gradient-orange2 border-orange2 @previousDisabled">
+        Previous
+    </a>
+
+    <small>Page @ViewBag.Page of @ViewBag.PageCount</small>
+
+    <a asp-action="Groups"
+       asp-route-page="@(Model.pagination.PageNum + 1)"
+       asp-route-sortOrder="@ViewData["CurrentSort"]"
+       class="btn text-gradient-orange2 border-orange2 @nextDisabled">
+        Next
+    </a>
+}

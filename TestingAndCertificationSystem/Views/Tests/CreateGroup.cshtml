@@ -1,0 +1,32 @@
+﻿@model TestingAndCertificationSystem.ViewModels.TestViewModel
+@{
+    ViewBag.Title = "New test";
+}
+
+<div class="col-md-10">
+    <h2 class="text-gradient-orange2">New Group</h2>
+    &nbsp;&nbsp;&nbsp;&nbsp;
+    <i class="fas fa-caret-left orange1"></i>
+    <a class="btn-link orange1" asp-controller="Tests" asp-action="Groups">
+        Back to groups
+    </a>
+    <br />
+    <br />
+
+    <div asp-validation-summary="All" class="alert-danger"></div>
+
+    <form asp-action="CreateGroup" asp-controller="Tests">
+        <div class="form-group">
+            <label class="control-label text-gradient-orange2 font-weight-bold">Name</label>
+            <input type="text" asp-for="Name" class="form-control" />
+        </div>
+        <div class="form-group">
+            <label class="control-label text-gradient-orange2 font-weight-bold">Short description</label>
+            <input type="text" asp-for="Description" class="form-control" />
+        </div>
+       
+        <div class="form-group">
+            <input type="submit" value="Create" class="btn btn-success" />
+        </div>
+    </form>
+</div>

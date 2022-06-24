@@ -1,0 +1,113 @@
+﻿@using TestingAndCertificationSystem.ViewModels;
+@model VerifiedGroupsViewModel
+
+<div class="col-md-10">
+    <h2 class="text-gradient-orange2">Verified groups</h2>
+    &nbsp;&nbsp;&nbsp;&nbsp;
+    <i class="fas fa-caret-left orange1"></i>
+    <a class="btn-link orange1" asp-controller="Tests" asp-action="TestInfopage" asp-route-testId="@Context.Request.Query["testId"]">
+        Back to test information
+    </a>
+    <br />
+    <br />
+</div>
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger" role="alert">
+        @TempData["ErrorMessage"]
+    </div>
+    <br />
+
+}
+
+<form method="post" asp-action="AddGroupToVL" , asp-route-testId="@Context.Request.Query["testId"]">
+
+    <div class="input-group mb-3">
+        <select name="groupId" class="custom-select" id="inputGroupSelect">
+            @foreach (var group in Model.Groups)
+            {
+                <option value="@group.Id">@group.Name</option>
+            }
+        </select>
+        <div class="input-group-append">
+            <button type="submit" class="btn btn-outline-warning"><i class="fas fa-plus orange2"></i></button>
+        </div>
+    </div>
+
+</form>
+
+<br />
+
+@if (Model.VerifiedGroups.source.Count() == 0)
+{
+    <div class="col-md-10">
+        <div class="alert alert-info" role="alert">
+            No groups can access this test
+        </div>
+    </div>
+}
+else
+{
+    <table class="table">
+        <tr>
+            <th class="text-gradient-orange1">Name</th>
+            <th class="text-gradient-orange1">Description</th>
+            <th class="text-gradient-orange1">Members in group</th>
+            <th></th>
+        </tr>
+        @foreach (var group in Model.VerifiedGroups.source)
+        {
+            <tr>
+                <td>@group.Name</td>
+                <td>@group.Description</td>
+                <td>@group.MembersInGroup</td>
+                <td>
+                    <div align="right" style="margin-left:auto">
+                        <button type="button" class="btn btn-sm btn-danger" data-toggle="modal" data-target="#Model_@group.Id">
+                            Delete
+                        </button>
+                        <div align="left" class="modal fade" id="Model_@group.Id" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title orange2" id="exampleModalLabel">Delete group</h5>
+                                    </div>
+                                    <div class="modal-body">
+                                        Do you want to delete <span class="text-gradient-orange1 font-weight-bold">@group.Name</span>?
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Close</button>
+                                        <form asp-controller="Tests" asp-action="RemoveGroupFromVL" asp-route-testId="@Context.Request.Query["testId"]" asp-route-groupId="@group.Id">
+                                            <button type="submit" class="btn btn-sm btn-danger"> Remove </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </td>
+            </tr>
+        }
+    </table>
+
+    var previousDisabled = !Model.VerifiedGroups.pagination.HasPreviousPage ? "disabled" : "";
+    var nextDisabled = !Model.VerifiedGroups.pagination.HasNextPage ? "disabled" : "";
+
+    <a asp-action="VerifiedGroups"
+       asp-route-page="@(Model.VerifiedGroups.pagination.PageNum - 1)"
+       asp-route-testId="@Context.Request.Query["testId"]"
+       class="btn text-gradient-orange2 border-orange2 @previousDisabled">
+        Previous
+    </a>
+
+    <small>Page @ViewBag.Page of @ViewBag.PageCount</small>
+
+    <a asp-action="VerifiedGroups"
+       asp-route-page="@(Model.VerifiedGroups.pagination.PageNum + 1)"
+       asp-route-testId="@Context.Request.Query["testId"]"
+       class="btn text-gradient-orange2 border-orange2 @nextDisabled">
+        Next
+    </a>
+}
